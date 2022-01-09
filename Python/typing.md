@@ -1,5 +1,11 @@
 # Typing
 
+## Debugging with mypy
+
+In case you have any doubt, you can always use `reveal_type(var)` with a variable to see
+the type that mypy has infered to a variable or the one that was statically assigned to
+it.
+
 ## Type inference and annotations
 
 By default, types are usually inferred (type inference), which means that:
@@ -171,6 +177,22 @@ class Dog:
 ```
 
 
+### Numpy
+
+Summarizing, there are three main packages/modules for numpy type annotation:
+
+- ndarray: (From Numpy API) Relies on ndarray, which are objects created from np.array()
+  method.
+- NDArray: (From nptyping, extra package not official) that redefines ndarray in a more
+  precise way. You can specify types, dimensions, size...
+- numpy.typing: Defines ArrayLike. These objects will be anything that can be passed
+  to build a ndarray type from np.array(). These can be either a Sequence
+  (such a list), scalas or another ndarray. Useful to avoid defining the Union of these
+  types.
+
+Therefore, as a cosnequence, ArrayLike is used to work with the INPUT of np.array,
+while ndarray/NDArray are used as the output of this function, to describe the
+type of a numpy array.
 
 ## Stubs
 
@@ -257,6 +279,9 @@ This technique consists of going from a broader tpye to a specific one. For exam
 - `issubclass()` like in `issubclass(cls, MyClass)` will narrow `cls` to be `Type[MyClass]`
 - `type()` like in `type(obj)` is int will narrow `obj` to have `int` type
 - `callable()` like in `callable(obj)` will narrow object to callable type
+- `TypeGuard` used to perform narrowing from any input type to any output type. Useful
+  for more complex types where you not only need to check the type of the object
+  but also the variable type inside for example.
 
 ```python
 def function(arg: object):
