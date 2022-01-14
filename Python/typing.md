@@ -3,8 +3,9 @@
 ## Debugging with mypy
 
 In case you have any doubt, you can always use `reveal_type(var)` with a variable to see
-the type that mypy has infered to a variable or the one that was statically assigned to
-it.
+the type that mypy has inferred to a variable or the one that was statically assigned to
+it. This can be useful to annotate the input/output params of a function instead of
+guessing what might be its type.
 
 ## Type inference and annotations
 
@@ -67,6 +68,8 @@ c: Literal[19] = 19
 c: Final = 19  # It means that c will take this as its only value (Literal[19])
 ```
 
+You can also use `Final[int]` to avoid type checkers inferring the type.
+
 Why is this also useful?
 
 - Useful for defining constants that should not be reassigned, redefined or overridden in
@@ -77,7 +80,7 @@ Why is this also useful?
   all the elements present in that variable.
 
 This can be also used to indicate that a method from a class should not be overridden
-(althoug it is allowed for type hinting only) or that a class should not be subclassed.
+(although it is allowed for type hinting only) or that a class should not be subclassed.
 
 ```python
 from typing import final
@@ -119,7 +122,6 @@ class Movie(MovieBase, total=False):
     based_on: str
 ```
 
-
 ### Aliases
 
 If the annotation gets so long, you can always use type annotations like this one:
@@ -133,7 +135,7 @@ def f() -> AliasType:
     ...
 ```
 
-Warning: This one does not create a type! It is just about notation, so be careful
+**Warning**: This one does not create a type. It is just about notation, so be careful
 when documenting.
 
 ### Tuples and Named tuples
@@ -164,8 +166,8 @@ Class attribute annotations:
 - Class variables: ClassVar[X]. Defined in the scope of the class, and all instances can
   access to it. Should not be modified from the instances of the object.
   This typing prevents it.
-- Instance variables: Defined in `__init__()` method. Annotated as a normal variable. Each
-  instance has its own instance variables.
+- Instance variables: Defined in `__init__()` method. Annotated as a normal variable.
+  Each instance has its own instance variables.
 
 ```python
 class Dog:
@@ -176,15 +178,44 @@ class Dog:
         self.name = name    # instance variable unique to each instance
 ```
 
+### Input/Output objects
+
+You can use `IO[]` for those objects returned from `open()`.
+
+### TypeVar
+
+Used to encapsulate any type. For example, for a function that receives a list of any
+type of object, and returns always one of its elements. We do not know its type, but
+we know they have to match
+
+```python
+# (This code will type check, but it won't run.)
+from typing import TypeVar, Generic, List, Tuple
+
+# Two type variables, named T and R
+T = TypeVar('T')
+R = TypeVar('R')
+
+# Put in a list of Ts and get out one T
+def get_one(x: List[T]) -> T: ...
+```
+
+Refs:
+[What is a TypeVar](https://stackoverflow.com/questions/58755948/what-is-the-difference-between-typevar-and-newtype)
+[TypeVar naming](https://stackoverflow.com/questions/48417071/purpose-of-name-in-typevar-newtype)
 
 ### Numpy
 
 Summarizing, there are three main packages/modules for numpy type annotation:
 
 - ndarray: (From Numpy API) Relies on ndarray, which are objects created from np.array()
-  method.
+  method (not very recommended. See the two ones below).
+- NDArray: (From numpy.typing): Redefines ndarray to be easier for annotations
+  (fewer arguments required).
 - NDArray: (From nptyping, extra package not official) that redefines ndarray in a more
-  precise way. You can specify types, dimensions, size...
+  precise way. You can specify types, dimensions, size... Then, these can be checked
+  with different narrowing types such as `isinstance(arr, NDArray[(2, 3), int])`.
+  However, this one is not properly read by MYPY!
 - numpy.typing: Defines ArrayLike. These objects will be anything that can be passed
   to build a ndarray type from np.array(). These can be either a Sequence
   (such a list), scalas or another ndarray. Useful to avoid defining the Union of these
@@ -192,7 +223,17 @@ Summarizing, there are three main packages/modules for numpy type annotation:
 
 Therefore, as a cosnequence, ArrayLike is used to work with the INPUT of np.array,
 while ndarray/NDArray are used as the output of this function, to describe the
-type of a numpy array.
+type of numpy array.
+
+## Functions, classes, variables or imports only used by the type checkers
+
+- Variables and imports: You can use either the `if TYPE_CHECKING` statement to
+conditionally import those modules that will be only used by type checkers
+(what will reduce the amount import cycles issues).
+- Functions and classes: Instead of encapsulating a function or a class with this
+if, you or a class with this if, you can use the decorator `@type_check_only`
+prepended to these objects (`from typing import type_check_only`). These will not be
+available at runtime.
 
 ## Stubs
 
@@ -206,7 +247,6 @@ with mypy or stubgen. It can be generated by:
   type checkers can find the reference to B. In this case the previous one is A.
 - Package: If I have A.B.C and I build he stubs for the package A, all
   the contained modules will be processed as well.
-
 
 ## Conflict between types at runtime vs at type checking
 
@@ -323,7 +363,7 @@ def func1(val: list[object]) -> None:
 This example can be seen as `is_str_list` is narrowing from `List[object]` to `List[str]`.
 Otherwise, with the boolean function we would not see this direct relationships.
 
-### Narrowing TypedDicts 
+### Narrowing TypedDicts
 
 If you want to narrow a Union of two TypedDicts into one, as you cannot do
 `isinstance(var, TypeDict_name)`, it is recommended to add a tag in each one of them

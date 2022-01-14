@@ -1,4 +1,4 @@
-# Testing
+# Testing guidelines
 
 ## Test anatomy or structure
 
@@ -6,12 +6,6 @@
 2. Act: (test) The test itself. Must contain the less. Behaviour we want to test.
 3. Assert: (test)
 4. Cleanup: Teardown sections
-
-## Fixtures
-
-Fixtures are predefined objects that can be initialized for each class, test... etc.
-After being created, you can use them as argument to any function and these can be
-freely used.
 
 ## Conftest.py
 
@@ -21,9 +15,13 @@ in the same directory or subsequent folders.
 ## Parametrizing
 
 Consists of changing the behaviour of a test or fixture based on other variables
-or previosuly defined constants.
+or previously defined constants.
 
 ### Fixtures
+
+Fixtures are predefined objects that can be initialized for each class, test... etc.
+After being created, you can use them as argument to any function and these can be
+freely used.
 
 You can parametrize a fixture with a list of params. The fixture will be executed
 once per each para defined in the list.
@@ -63,20 +61,29 @@ def test_add(a, b, c):
     assert res == c
 ```
 
+There are also marks to mark the test as expected to fail (xfail) if a given condition
+is met. With the strict option set as True, the exitcode will be FAILED if this happens.
+What's the difference then? Then the test will be not executed and directly checked as
+failed if the condition is met.
+
+```python
+@pytest.mark.xfail(condition, reason="ROS core not launched", strict=True)
+```
+
 ## Ensure teardowns are always executed
 
 Fixtures with setup and teardown sections are always recommended to have a small setup
-(and non dependant setup can be done in another fixture). This way, if the setup
+(and non dependent setup can be done in another fixture). This way, if the setup
 produces a change in the state you can better ensure that the teardown is executed.
 
-## Fixtures scopes
+## Fixture scopes
 
 It can be changed to execute the fixture once per class, test, session...
 
 ## Overriding fixtures
 
-A fixture can be overriden to use the original wone but with some modifications. In
-this case, the fixture `pyramid_request` is overriden inside the class
+A fixture can be overridden to use the original wone but with some modifications. In
+this case, the fixture `pyramid_request` is overridden inside the class
 `TestUserSearchController`
 
 ```python
@@ -93,10 +100,10 @@ class TestUserSearchController(object):
 
 ## Yields
 
-This can be used to set up a fixture, modifiy in a test, and execute a teardown
-method with it if necessary. If there are no teardown, a return is more than enough.
+This can be used to set up a fixture, modify in a test, and execute a teardown
+method with it if necessary. If there are no teardowns, a return is more than enough.
 
-```
+```python
 @pytest.fixture()
 def test_save():
     # Setup here of test_object
@@ -131,6 +138,11 @@ assert x == y, "Message"
 
 See parametrizing/fixtures (above)
 
-### Parametrizing tests 
+### Parametrizing tests
 
 See parametrizing/tests (above)
+
+### Printing and displaying information
+
+By using `pytest-info-collector`(needs to be installed), you can use a fixture to
+always print a message regardless the status of the test.
