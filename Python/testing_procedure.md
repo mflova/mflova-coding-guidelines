@@ -116,7 +116,7 @@ test_function(test_object)
 
 ```
 
-## Testing
+## Asserting
 
 ### Assertion of expected exceptions
 
@@ -146,3 +146,34 @@ See parametrizing/tests (above)
 
 By using `pytest-info-collector`(needs to be installed), you can use a fixture to
 always print a message regardless the status of the test.
+
+## Mocking
+
+Used when the output of a function we need to use for the setup is unpredictable. This
+way we can directly force it to retrieve the values we want. Not only the return values,
+but also its inner components (variables)
+
+
+```python
+from unittest import mock
+import pytest
+
+from myapp.sample import guess_number, get_ip
+
+# Simple example with only changing the return value
+@mock.patch("myapp.sample.roll_dice")
+def test_guess_number(mock_roll_dice, _input, expected):
+    mock_roll_dice.return_value = 3
+    assert guess_number(_input) == expected
+    mock_roll_dice.assert_called_once()
+
+# Mre complex functions that we modify its inside
+@mock.patch("myapp.sample.requests.get")
+def test_get_ip(mock_request_get):
+    mock_requests_get.return_value = mock.Mock(name"mock response", **{"status_code": 200, [...]})
+    assert get_ip == "0.0.0.0"
+```
+
+Both examples are explained in this [full video](https://www.youtube.com/watch?v=dw2eNCzwBkk).
+
+

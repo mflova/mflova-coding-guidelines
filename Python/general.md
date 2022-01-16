@@ -5,8 +5,10 @@
 About the instance vs class attributes:
 
 - Class attributes: Defined at a class level (shared by all objects). When you modify
-  them in an instance, this one will be looked up at a class level, and stored as an
-  instance attribute of that object. See this [question/answer](https://stackoverflow.com/questions/63436006/why-can-i-change-class-attributes-for-an-instance-without-changing-the-class-val)
+  them in an instance by mistake, an instance parameter with the same name wil be
+  created. If an attribute with the same name already exists (as class and instance
+  attributes) the priority is always the instance attribtue. See this
+  [question/answer](https://stackoverflow.com/questions/63436006/why-can-i-change-class-attributes-for-an-instance-without-changing-the-class-val)
 - Instance attributes: Assigned with the keyword `self`. Each instance will have its
   own values.
 
@@ -117,15 +119,37 @@ used for checking not only types but also values when creating the class.
 Decorators for methods belonging to a class:
 
 - `@classmethod`: To declare a method in the class as a class method. Can only access
-  class attributes. The first parameter must be `cls`. Therefore, using
+  class attributes. These are called instead from the object, from the class: 
+
+  ```python
+  class Person:
+    @classmethod
+    def from_string():
+        ...
+
+  # Calling this method from the class instead of the instance
+  Person.from_string()
+  ```
+
+  The first parameter must be `cls`. Therefore, using
   `return cls(1,2)` will return an instantiate of the object where the parameters 1
-  and 2 were sent to the `__init__` method. 
+  and 2 were sent to the `__init__` method. Typycally used to create custom or optional
+  initalizers of the object. For example, an object that can be isntanciated from an
+  encoded string would be:
+
+  ```python
+  @classmethod
+  def from_string(cls, str):
+      # Logic to parse the string to the parameters retrieved by the __init__ method
+      return cls(param1, param2...) # This returns the obejct created from
+                                    # the from_string method
+  ```
   [This link](https://www.attrs.org/en/stable/init.html?highlight=__init__) might be
   useful. You can see that the method `from_row` contains the necessary logic to build
   the class depending on the type of object sent. Thanks to it, it is not necessary to
   change the logic of __init__ every time we want to initialize and object in a
   different way (Remember that `@define` currently creates the `__init__` method).
-- `@staticmethod`: Same as classmethod but do not have cls, so it cannot access any
+- `@staticmethod`: Same as `classmethod` but do not have cls, so it cannot access any
   internal value of the class.
 - `@property`: Methods from a class that return values and attributes. Cannot have
   parameters and they must be called after instantiation.
@@ -204,6 +228,33 @@ You also have generator comprehensions:
 
 ```python
 (item for item in my_list if item > 3)
+```
+
+### Asbtract classes
+
+Just as a reminder, you can create them with: 
+
+```python
+from abc import ABC, abstractmethod
+ 
+class Polygon(ABC):
+ 
+    @abstractmethod
+    def noofsides(self):
+        """Descrption.""" # You can also use the keyword pass, but test coverage APIs
+                          # will always say that this statement is never reached.
+ 
+class Triangle(Polygon):
+ 
+    # overriding abstract method
+    def noofsides(self):
+        print("I have 3 sides")
+ 
+class Pentagon(Polygon):
+ 
+    # overriding abstract method
+    def noofsides(self):
+        print("I have 5 sides")
 ```
 
 ### C-Python
