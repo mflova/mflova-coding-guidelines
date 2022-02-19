@@ -21,8 +21,12 @@ By using "annotations", its type can be set explicitly. This can be overridden w
 i: Union[int, str] =  1 # explicit type: int or str
 ```
 
-Note: Remember the duck compatibility of mypy, by which an int is "contained" inside
-float. More compatibilites can be seen [here](https://mypy.readthedocs.io/en/stable/duck_type_compatibility.html)
+When it comes about annotations, you can either:
+
+- Annotate the type
+- Annotate how the variables behaves (duck typing). You do not really care about the
+  type is, but if it can be compared with > or iterated for example. This is called
+  duck typing.
 
 Links: [Mypy documentation](https://mypy.readthedocs.io/en/stable/type_inference_and_annotations.html)
 
@@ -31,7 +35,10 @@ Links: [Mypy documentation](https://mypy.readthedocs.io/en/stable/type_inference
 Basic types are considered to be known (Union, List, int...). This section explains the
 more complex ones.
 
-`Callable(args type, return type)`: Tipycally for functions.
+`Callable(args type, return type)`: Tipycally to define functions signature. This one
+does not allow either to include default argument (optional ones) and there is no
+information about the keywords or names in the function signature. If you need them,
+""use `Protocol`. See in the `advanced.md` guide.
 
 However, there is something with `Any` that needs to be clarified. `Any` tells the static
 type checker not to check the type of that variable. As a better approach, we have
@@ -50,6 +57,8 @@ For example, a function can be overridden to specify the type of value that it r
 on not only the type of the input, but also its value:
 
 ```python
+from typing import overload
+
 @overload
 def fetch_data(raw: Literal[True]) -> bytes: ...
 @overload
@@ -83,7 +92,7 @@ This can be also used to indicate that a method from a class should not be overr
 (although it is allowed for type hinting only) or that a class should not be subclassed.
 
 ```python
-from typing import final
+from typing import final, overload
 
 # For methods
 class Base:
@@ -158,12 +167,12 @@ p = Point(x=1, y='x')  # Argument has incompatible type "str"; expected "int"
 
 ### Classes
 
-Its type can be used with `Type[C]` being `C` the name of the class or a subclass of `C`
-or just the name of the class itself.
+Its type can be used with either `C` or `Type[C]` being `C` the name of the class. With
+`Type` only subclasses of `C` are allowed.
 
 Class attribute annotations:
 
-- Class variables: ClassVar[X]. Defined in the scope of the class, and all instances can
+- Class variables: `ClassVar[X]`. Defined in the scope of the class, and all instances can
   access to it. Should not be modified from the instances of the object.
   This typing prevents it.
 - Instance variables: Defined in `__init__()` method. Annotated as a normal variable.
@@ -186,7 +195,7 @@ You can use `IO[]` for those objects returned from `open()`.
 
 Used to encapsulate any type. For example, for a function that receives a list of any
 type of object, and returns always one of its elements. We do not know its type, but
-we know they have to match
+we know they have to match. More info in the advanced markdown.
 
 ```python
 # (This code will type check, but it won't run.)

@@ -53,6 +53,8 @@ Decorators for classes:
 - `@dataclass`: Structures purely made to store data. It automatically implements
   methods as `__init__`, `__repr__` or other functions depending on the flags that are
   passed to this structure, as `Frozen = true` to make it hashable (for a dictionary).
+  You can use the keyword `field` to pass more parameters to each variable. For example,
+  to avoid a specifc parameter to be part of the `__init__` method.
 
 ```python
 from dataclasses import dataclass
@@ -167,6 +169,9 @@ Decorators for methods belonging to a class:
 - Use the method all to functions related to check all the elements from a structure
   without the need of a `for` loop. Example: `all(isinstance(x, str) for x in val)`
   returns a `True` if all elements returned are `True`.
+- Instead of installing a package with `pip3 install .`, add the flag `-e` from
+  editable so that everytime you modify the Python code you do not have to reinstall
+  the package.
 
 ## Mutable vs inmutable objects
 
