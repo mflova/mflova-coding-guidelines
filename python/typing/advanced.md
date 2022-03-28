@@ -12,6 +12,8 @@ To define types with fixed-context through metadata. For example
 T1 = Annotated[int, ValueRange(10,5)]
 ```
 
+Compatible with runtime checks, but added in Python 3.9.
+
 ## typing.NoReturn
 
 For functions that does not return anything (i.e always raised exceptions)
@@ -69,7 +71,7 @@ invariant. See [this link](https://stackoverflow.com/questions/61568462/python-t
 There are some predefined `TypeVar` that can be imported from the `typing` module:
 
 ```python
-# Some unconstrained type variables.  These are used by the container types.
+# Some unconstrained type variables. These are used by the container types.
 # (These are not for export.)
 T = TypeVar('T')  # Any type.
 KT = TypeVar('KT')  # Key type.
@@ -81,8 +83,8 @@ T_contra = TypeVar('T_contra', contravariant=True)  # Ditto contravariant.
 # Internal type variable used for Type[].
 CT_co = TypeVar('CT_co', covariant=True, bound=type)
 
-# A useful type variable with constraints.  This represents string types.
-# (This one *is* for export!)
+# A useful type variable with constraints. This represents string types.
+# (This one is for export!)
 AnyStr = TypeVar('AnyStr', bytes, str)
 ```
 
@@ -110,14 +112,18 @@ It can be also used as an improved version of `Callable`. `Callable` just define
 something minimal, so most of the metadata of the function is lost (keyword names,
 docstring...). This metadata helps when developping code and also helps the LSP
 features and autocomplete from the IDE. In addition, with `Protocol` you can define
-default arguments, such in this example `y`. In `Callable` you cannot.``python
+default arguments, such in this example `y`. In `Callable` you cannot.`python`
 
+```python
 class Foo(Protocol):
     def __call__(self, x: int, y: Optional[float] = None) -> float:
         """Docstring"""
 ```
 
-If `self` is not necessary, just tag the method as `@staticmethod`.
+If `self` is not necessary, just tag the method as `@staticmethod`. You can use
+@runtime_checkable from `typing/typing_extensions` so that you can check the protocol
+in runtime with `isinstance(variable, my_protocol)`. Take into account that this one
+does not check the signature of the methods.
 
 ## Decorators
 
@@ -147,3 +153,35 @@ foo('x')    # Type check error: incompatible type "str"; expected "int"
 ```
 
 More info about decorators in [Mypy docs](https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators)
+
+## Inheritances
+
+### Overriding types in methods
+
+Remember that, when creating a class from a base one, the arguments tends to be
+contarvariant while the return type is covariant.
+For example, code below is ok because the return type of func (in B) is subtype of
+`float`, while the argument is a supertype.
+Doing `val: int` in `B`, mypy raises an error saying that the liskov principle is
+violated.
+
+```python
+class A(ABC):
+
+    @abstractmethod
+    def func(self, val: float) -> float:
+        pass
+
+class B(A):
+    def func(self, val: object) -> int:
+        return 2
+
+```
+WARNING: However, this does not happen in normal functions. If you expect to receive a
+float, you cannot pass an object. The code above is ONLY for overriding methods and
+abstract methods.
+
+### Overriding instance attributes
+
+It can be done by means of `Generic`. Example [here](https://stackoverflow.com/questions/58089300/python-how-to-override-type-hint-on-an-instance-attribute-in-a-subclass)
+Another solution (also in that URL) is to manually override in the class scope.

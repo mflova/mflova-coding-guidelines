@@ -30,6 +30,10 @@ When it comes about annotations, you can either:
 
 Links: [Mypy documentation](https://mypy.readthedocs.io/en/stable/type_inference_and_annotations.html)
 
+Take into account that when you type `float`, this also accepts any subtype such as
+`int` or `bool`. However, when we use runtime checks (such as `isisntance`) this will
+check ONLY that type/class. Not any subtype.
+
 ## Kind of types
 
 Basic types are considered to be known (Union, List, int...). This section explains the
@@ -38,7 +42,7 @@ more complex ones.
 `Callable(args type, return type)`: Tipycally to define functions signature. This one
 does not allow either to include default argument (optional ones) and there is no
 information about the keywords or names in the function signature. If you need them,
-""use `Protocol`. See in the `advanced.md` guide.
+use `Protocol` with a method `__call__` inside. See in the `advanced.md` guide.
 
 However, there is something with `Any` that needs to be clarified. `Any` tells the static
 type checker not to check the type of that variable. As a better approach, we have
@@ -110,6 +114,25 @@ class Leaf:
 
 class MyLeaf(Leaf):  # Error: Leaf can't be subclassed
 ```
+
+### Type
+
+It can be seen as a class without being initialized. For example:
+
+```python
+class A:
+    pass
+
+# It receives an instance of A
+def func(var: A)
+    ...
+
+# It receives the class A without being instantiated.
+def func(var: Type[A])
+    ...
+```
+
+This is useful to type hint `cls` or classes that instantiate other class objects.
 
 ### TypedDict
 
@@ -212,6 +235,11 @@ def get_one(x: List[T]) -> T: ...
 Refs:
 [What is a TypeVar](https://stackoverflow.com/questions/58755948/what-is-the-difference-between-typevar-and-newtype)
 [TypeVar naming](https://stackoverflow.com/questions/48417071/purpose-of-name-in-typevar-newtype)
+
+### Immutable alternative objects
+
+`FrozenSet` has its own type, while `MappingProxyType` ("immutable dict") needs to be
+typed with `Mapping`.
 
 ### Numpy
 
@@ -410,3 +438,75 @@ def process_event(event: Event) -> None:
 Links:
 
 - [Mypy documentation](https://mypy.readthedocs.io/en/stable/type_narrowing.html)
+
+## Covariant, variant and invariant
+
+This is how types interact each others in `Generic` types. Taking into account that B subclasses A:
+
+- If B is allowed when expecting A: it is covariant. Examples: mostly immutable types
+  in Python (like tuples). About the typing package, `Union` is one example. Which means
+  that `Union[C, D]` is expecting either C or D or any of these subclasses.
+- If A is allowerd when expecting B: it is contravariant. Typical examples are argument for the `Callable` type.
+- If none of them is allowed: it is invariant. Typically from mutable types suchas as `List` or `Dict`.
+
+When you have a combination of covariant and invariant, the most restrictive applies. Here are some examples:
+
+```python
+lst: List[float] = []
+
+def _myfunc2(lst: List[Union[str, float]]) -> List[Union[str, float]]:
+    return lst
+
+_myfunc2(lst) # Incompatible type List[float]; expected List[Union[str, float]]
+```
+
+With dictionary:
+
+```python
+dct: Dict[str, str]
+
+def _myfunc(dct: Dict[str, Union[str, float]]) -> Dict[str, Union[str, float]]:
+    return dct
+
+_myfunc(dct) # Incompatible type Dict[str, str], expected Dict[str, Union[str, float]]
+```
+
+`float` is a subtype of `Union[str, float]`. Since `Dict` doe not expect any subtype of
+its type (as it is not covariant), the assignment is rejected.
+
+See variance of generic types: [Link](https://mypy.readthedocs.io/en/stable/generics.html#variance-of-generic-types)
+
+Ok but how to solve it? There are three [main solutions](https://mypy.readthedocs.io/en/stable/common_issues.html#invariance-vs-covariance).
+
+- Use an explicit type annotation:
+
+   ```python
+   class A: ...
+   class B(A): ...
+
+   lst = [A(), A()]  # Inferred type is List[A]
+   new_lst: List[A] = [B(), B()] # If you do not annotate, inferred type is List[B],
+                                 # which triggeers mypy error
+   lst = new_lst  # OK
+   ```
+
+- Make a copy of the right hand side:
+
+   ```python
+   class A: ...
+   class B(A): ...
+
+   lst = [A(), A()]  # Inferred type is List[A]
+   new_lst = [B(), B()]  # inferred type is List[B]
+   lst = new_lst  # mypy will complain about this, because List is invariant
+   lst = list(new_lst) # But this is OK, as it creates a new list that is compatible
+                       # with this assignment
+   ```
+
+- Using `Collection Abstract Base Classes`: These are abstract types from which other
+  non-covariant classes (`List` or `Dict`) derive. Some of these superclasses are
+  immutable (and covariant as consequence). For example: For `List` you have the
+  `Sequence` and for `Dict` you have `Mapping`. Take into account that these types
+  will remove some functionalities. For example, for `Mapping`, the dictionary cannot
+  be modified once created. `Sequnce` and `Mapping` also group more types than only
+  `List` and `Dict`. [Here is the current hierarchy](https://dzone.com/articles/just-a-class-diagram-for-python-3-collections-abst)

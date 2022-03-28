@@ -56,6 +56,7 @@ def test_example(fixt):
 Other alternative (cleaner I guess) is to have something like:
 
 ```
+# If the test function is inside class, this fixture would need to be outside the class.
 @pytest.fixture
 def add_two(value: int) -> int:
     return value + 2

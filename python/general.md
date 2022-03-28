@@ -5,9 +5,9 @@
 About the instance vs class attributes:
 
 - Class attributes: Defined at a class level (shared by all objects). When you modify
-  them in an instance by mistake, an instance parameter with the same name wil be
+  them in an instance by mistake, an instance parameter with the same name will be
   created. If an attribute with the same name already exists (as class and instance
-  attributes) the priority is always the instance attribtue. See this
+  attributes) the priority is always the instance attribute. See this
   [question/answer](https://stackoverflow.com/questions/63436006/why-can-i-change-class-attributes-for-an-instance-without-changing-the-class-val)
 - Instance attributes: Assigned with the keyword `self`. Each instance will have its
   own values.
@@ -17,6 +17,107 @@ same name, Python will first look at the instance level. If there are not, it wi
 to the class attribute.
 To document these classes, I think it is recommended to use the keyword `attribute` for
 both instance and class attributes.
+As a useful tip, you can use `dir()` to inspect all the attributes within a class.
+
+## Packing/Unpacking
+
+In general, commas create tuples (`2, 3, 4` is an example). You can unpack these values
+by assigning them in the left hand side (LHS) like `a, b = 3, 4`. In the RHS, you
+create a tuple with two numbers, while in the LFHS you unpack them into these two values.
+This happens in the foor loop while iterating iterable objects:
+
+```python
+for idx, value in enumerate(lst):
+    ...
+```
+
+Here `enumerate` takes one by one each eelement from an iterable and creates a tuple
+with the idx and value. Then, you unpack them with `idx, value`.
+You can use `*args` to indicate "the rest" of the elements (ex: `a, *args = 1, 2, 3`)
+in which a will be 1 and args a list of `[2, 3]`.
+If you want to iterate element-wise between 2 or more iterables, you can pack the
+values with `zip()`
+
+```python
+nums = [1,2,3]
+letters = ['a', 'b', 'c']
+
+# The zip will create: [(1,'a'), (2, 'b'), (3, 'c')] that you can then upack as below
+for num, letter in zip(nums, letters):
+    ...
+```
+
+### Using them in the arguments of a function
+
+This can also be applied in functions:
+
+```python
+def my_func(a, *args):
+    ...
+
+my_func(1,2,3) # a = 1, args = (2,3)
+```
+
+The only difference is that args will be a tuple and not a list. You can use `*` to
+exhaust the positional arguments:
+
+```python
+# Function that receives one positional argument (a) and one mandatory keyword argument
+# (b).
+def my_func(a, *, b):
+    ...
+```
+
+### Using them when calling a function
+
+Similarly:
+
+```python
+lst = [1,2,3]
+my_func(*lst)  # Will call my_func(1,2,3)
+
+dct = {"a": 2, "b":3}
+my_func(**dct)  # Will call my_func(a=2, b=3)
+```
+
+As a general note, `*args` is related to lists-tuples (arguments with no keywords)
+while `**kwargs` is related to dictionaries (keyword-related arguments)
+
+## Scopes
+
+Main keywords: `nonlocal` and `global`
+
+```python
+a = 2
+
+# This functions does not modify the global variable a
+def func():
+    a = 3
+
+# This function does modify the global variable a, as we are telling Python that a will
+# be referencing the one from the global scope.
+def func2():
+    global a = 3
+```
+
+`nonlocal` is used when you need to search in a broeader scope but NOT in the global one.
+For example:
+
+```python
+
+# Calling outer_func() will end up with a = 2
+def outer_func():
+    a = 2
+    def inner_func():
+        a = 3
+
+# Calling outer_func() will end up with a = 3
+# nonlocal tells that we are looking for variable a in a broader scope.
+def outer_func():
+    a = 2
+    def inner_func():
+        nonlocal a = 3
+```
 
 ## Decorators
 
@@ -54,7 +155,7 @@ Decorators for classes:
   methods as `__init__`, `__repr__` or other functions depending on the flags that are
   passed to this structure, as `Frozen = true` to make it hashable (for a dictionary).
   You can use the keyword `field` to pass more parameters to each variable. For example,
-  to avoid a specifc parameter to be part of the `__init__` method.
+  to avoid a specific parameter to be part of the `__init__` method.
 
 ```python
 from dataclasses import dataclass
@@ -117,11 +218,10 @@ and [examples here](https://www.attrs.org/en/stable/examples.html). Check
 [validators!](https://www.attrs.org/en/stable/examples.html#validators) that can be
 used for checking not only types but also values when creating the class.
 
-
 Decorators for methods belonging to a class:
 
 - `@classmethod`: To declare a method in the class as a class method. Can only access
-  class attributes. These are called instead from the object, from the class: 
+  class attributes. These are called instead from the object, from the class:
 
   ```python
   class Person:
@@ -143,9 +243,10 @@ Decorators for methods belonging to a class:
   @classmethod
   def from_string(cls, str):
       # Logic to parse the string to the parameters retrieved by the __init__ method
-      return cls(param1, param2...) # This returns the obejct created from
+      return cls(param1, param2...) # This returns the object created from
                                     # the from_string method
   ```
+
   [This link](https://www.attrs.org/en/stable/init.html?highlight=__init__) might be
   useful. You can see that the method `from_row` contains the necessary logic to build
   the class depending on the type of object sent. Thanks to it, it is not necessary to
@@ -154,9 +255,11 @@ Decorators for methods belonging to a class:
 - `@staticmethod`: Same as `classmethod` but do not have cls, so it cannot access any
   internal value of the class.
 - `@property`: Methods from a class that return values and attributes. Cannot have
-  parameters and they must be called after instantiation.
+  parameters and they must be called after instantiation. Typically used when a
+  parameter is calculated from instance attributes, to avoid re-updating this property,
+  this getter will calculate the value whenever is requested. So no need to update the
+  property once its dependent value changes.
 - `@abstractmethod`: Class with this decorator cannot be instantiated.
-
 
 ## Tips and tricks
 
@@ -170,8 +273,58 @@ Decorators for methods belonging to a class:
   without the need of a `for` loop. Example: `all(isinstance(x, str) for x in val)`
   returns a `True` if all elements returned are `True`.
 - Instead of installing a package with `pip3 install .`, add the flag `-e` from
-  editable so that everytime you modify the Python code you do not have to reinstall
+  editable so that every time you modify the Python code you do not have to reinstall
   the package.
+
+## Python Memory Management
+
+As a note, you can check the memoery addres with `id()`
+
+Variables are always pointers to the address of an object. Everything in Python is
+pointing an object so all values are passed by reference. When the reference counter of
+an object is zero, the object is released from memory. When you do `a = 2`, since ints
+are immutable objects (you cannot change its internal state), if you follow with
+`a = a + 2` you will create a new `int` object with value `a + 2` and now `a` will be
+pointing to this one. However, for mutable objects like `lists`, when you `.append` and
+object, you are directly modidfying the interla state of the list (same memory address
+but different content). But when you do something like `lst = lst + ['a']`, you will be
+creating again a new object and assigning `lst` the new address of that object. In
+Python, whenever there is an assignment (`=`), the right side is first evaluated and
+then the left side. When I do:
+
+```python
+lst = [1,2,3]
+lst2 = lst
+```
+
+Any change on the list (either from `lst2` or `lst`) will produce changes in the
+content of the list, since both are pointing at the same variable and this variable can
+be mutable. If you have a `Tuple` (immutable) of `Lists` (mutable) the memory address
+of the tuple is not going to change. But each element of the tuple is a variable that
+is pointing to a lists, and the content of this can change, so be careful with it.
+Knowing this, you have to take into account the two main operators when comparing objects:
+
+- `is`: Checks that two objects point to the same address. Since `None` object is a
+  singleton, that's why you use it with `None`, as all variables that were assigned to
+  it will point to the same direction.
+- `=`: Checks the CONTENT of the variable. Nothing to do with the memory address.
+
+### Interning
+
+Some `int` and `str` are pre-cached in the memory to otpimize access times. This is
+done for the range [-5, 256] for the int or any snake case string (lower case with
+underscore) as these are typically use as dictionary keys. What does it mean? That
+these are singletons. All variables pointing this values will be pointing the same
+address. Due to this, it is faster to compare them with `is` rather than `==`. For
+example, in a string, you need to compare char by char. However, if you know that that
+string is a singleton, you can just compare if two variables are pointing the same
+memory address, regardless the number of chars.
+
+### Storing constants
+
+Some variables (such as `40 * 60` or `if var == [1, 2, 3]`) are stored as constants to
+access them faster. In case of the list, this is stored as its equivalent immutable
+object (`tuple`). For the `set`, there is the `frozenset`.
 
 ## Mutable vs inmutable objects
 
@@ -181,7 +334,7 @@ Mutable objects can be modified in runtime. Immutable not:
 - Mutable: list, set and dict.
 
 **Caution:** When setting the default arguments of a function, remember that these are not
-assigned every time the function is called, but when the function is defined. Due to
+assigned every time the function is called, but when the function is defined (module imported). Due to
 this, doing:
 
 ```python
@@ -208,6 +361,35 @@ def append_to(element, to=None):
 ```
 
 However, this behaviour might be intended to perform some memoizaiton or other techniques.
+More cases as an example:
+
+```python
+# to_append takes the memory address of list and changes its internal state to add the
+# int 4 element. Therefore, whenever it is called it adds one more.
+def to_append(lst = [1,2,3]):
+    lst.append(4)
+    print(lst)
+to_append()  # [1, 2, 3, 4]
+to_append()  # [1, 2, 3, 4, 4]
+
+
+# Here, in contrast, does not happen. lst + [4] creates a NEW object in another memory
+# address, and then lst (the left hand side) is pointing to this new memory address.
+def to_append(lst = [1,2,3]):
+    lst = lst + [4]
+    print(lst)
+to_append()  # [1, 2, 3, 4]
+to_append()  # [1, 2, 3, 4]
+```
+
+For all these cases, it would be the same if you create a list and send that memory
+address as input argument to the `to_append()` function.
+
+### Immutable alternatives
+
+For `Set`, you can use `FrozenSet` for its equivalent immutable object. For `Dict` you
+can use `MappingProxyType`, which is a proxy (wrapper) around the dict implementation
+to remove its writting methods.
 
 ## Performance
 
@@ -235,9 +417,9 @@ You also have generator comprehensions:
 (item for item in my_list if item > 3)
 ```
 
-### Asbtract classes
+### Abstract classes
 
-Just as a reminder, you can create them with: 
+Just as a reminder, you can create them with:
 
 ```python
 from abc import ABC, abstractmethod
@@ -246,7 +428,7 @@ class Polygon(ABC):
  
     @abstractmethod
     def noofsides(self):
-        """Descrption.""" # You can also use the keyword pass, but test coverage APIs
+        """Description.""" # You can also use the keyword pass, but test coverage APIs
                           # will always say that this statement is never reached.
  
 class Triangle(Polygon):
@@ -281,3 +463,101 @@ One package that includes a decorator (`@memprof`) for profiling the memory usag
 Python scripts for variables and functions:
 
 [memprof repository](https://github.com/jmdana/memprof)
+
+## Closures and decorators
+
+Closure is just a function that references a free variable (a.k.a non local variable).
+This free variable has memory outside of the scope.
+Example:
+
+```python
+def outer():
+    count = 0
+    def inner():
+        nonlocal count
+        count = count + 1
+        print(count)
+        return count
+    return inner
+```
+
+In this case, calling `outer()` will return the closure (which is the function `inner`
+and this `count` variable). Then:
+
+```python
+func = outer()
+func()  # 1
+func()  # 2
+```
+
+When you call `outer`, a `Cell` is created, which means that the `count` from `inner`
+and the `counter` from `outer` are pointing the same varible.
+If the outer functions receives a function, this is a decorator.
+
+```python
+def outer(func):
+    # args and kwargs to read all possible arguments from the function
+    def inner(*args, **kwargs):
+        inner.calls += 1
+        print(inner.calls)
+        return func(*args, **kwargs)
+    inner.calls = 0
+    return helper
+```
+
+A free variable can be instantiated in the outer function. This one would have its own
+value (persistent memory) per each function.
+As a tip: 2 nested functions means that you will need to call the outer function twice
+to get the desired effect. In this case, calling `call_counter(my_func)` will create a
+similar version of `my_func` but substituted by `inner`. Due to this substitution, all
+the metadata form my original function will be also substituted by the `inner` one. Use
+the `@wraps(func)` decorator over `inner` to avoid this.
+
+Decorators with arguments will need one more outer func. This one is also called
+factory decorator, as it is in charge of creating new decorators based on my input
+arguments. In the example below, calling `decorator_factory(X)` with my arguments, will
+return a decorator that can be used as the above code blocks.
+
+```python
+def decorator_factory(argument):
+    def decorator(function):
+        def wrapper(*args, **kwargs):
+            funny_stuff()
+            something_with_argument(argument)
+            result = function(*args, **kwargs)
+            more_funny_stuff()
+            return result
+        return wrapper
+    return decorator
+
+# Ex (total of 3 calls):
+my_decorator = decorator_factory(X)
+wrapped_func = my_decorator(func)
+wrapped_func()
+```
+
+## Single dispatch (pseudo function overload)
+
+As an example, in the following code the function `fun` defines a default behaviour.
+Then, with `@fun.regier(type)` you define specific behaviours. The function name can be
+anything.
+
+```python
+from functools import singledispatch
+
+@singledispatch
+def fun(s):
+        print(s)
+
+@fun.register(int)
+def _(s):
+        print(s * 2)
+
+@fun.register(list)
+def _(s):
+        for i, e in enumerate(s):print(i, e)
+
+fun('GeeksforGeeks')
+fun(10)
+fun(['g', 'e', 'e', 'k', 's'])
+```
