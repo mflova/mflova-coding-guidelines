@@ -31,4 +31,40 @@ Useful sync features:
      - `count`: Variable that keep tracks of how many threads are alive
      - `wait`: Wait till count > 0
      - `done`: substracts one to count
-     - `add`: Add one to count. This can be done by either the main thread or any subthread by creating new subthreads.
+     - `add`: Add one to count. This can be done by either the main thread or any
+       subthread by creating new subthreads.
+
+ - Shared memory: In threads memory is shared. You have extra objects such as `queue`
+   from `Queue`. You can also use the `queue` from `multiprocessing` for processes (it
+   implements an inner lock).
+ - Sending data among processes: `Pipe` from `multiprocessing` creates a pipe (1on1
+   communication that can be uni or bidirectional). THe object creates a 2 elements
+   tuple that can be passed to two processes to share information among them. Queue can
+   be used to share data as well. This one can be N on M (not only 1 on 1). You can
+   also use `array` from multiprocessing for this.
+
+## Design patterns
+
+### Pipeline pattern
+
+Pattern used when you have a few functions that are executed in order and having a
+dependant relationship, like in an assembly line. In this case, instead of waiting the
+first function to do all the job and then switching to the second function, this
+pattern suggests using pipelines to start adding jobs to the pipeline. Then, the next
+function would be hearing this pipeline and processing the incoming jobs. When the
+entire process consists of N steps or functions, you will need to create N-1 pipes.
+Each pipe connects two related or consecutive steps. Therefore, here is an example with
+processes, being each function a different process:
+
+```python
+def first_step(connection_A)  # Send messages through A pipe
+def second_step(connection_A, connection_B)  # Receive messages through A and send new
+                                             # messages to the next step through B
+def third_step(connection_B)  # Receives messages through B
+```
+
+### Thread pool
+
+A master thread sends jobs to a queue and then all the other child processes are
+listening to this queue. If there is a new job, any of these will take it out and
+process it.

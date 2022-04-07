@@ -30,6 +30,22 @@ Install with `pip install pytest-xdist`
 
 Run tests in parallel with `pytest -nauto [...]`
 
+## hypothesis
+
+[Link](https://github.com/HypothesisWorks/hypothesis)
+
+It can be used to cover a wide range of example inputs into your function or classes in
+unit testing:
+
+```python
+@given(text())
+def test_decode_inverts_encode(s):
+    assert decode(encode(s)) == s
+```
+
+But it can also instantiate multiple of the class you want. This API will create them
+based on a combination of its input arguments.
+
 ## hypothesis-auto
 
 [Link](https://github.com/timothycrosley/hypothesis-auto)
