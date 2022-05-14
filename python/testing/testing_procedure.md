@@ -67,6 +67,11 @@ def test_export_camera_intrinsics(tmp_path: str, add_two: int) -> None:
     # Code
 ```
 
+#### Useful fixtures
+
+ - `tmp_path`: Temporary path for each test
+ - `tmpdir_factory`: Factory to create folders inside this same `tmp_path`
+
 ### Tests
 
 In order to make cleaner tests, one possibility is to parametrize the input-output

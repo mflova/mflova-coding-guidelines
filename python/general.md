@@ -141,11 +141,27 @@ say_hi()
 
 Performance and safety related:
 
-- `@cache`: Performs automatic memoization (used to store previously calculated
-  states in recursion, to avoid recalculating them.
+- `@cache`: Performs automatic memoization by storing the input arguments of a function
+  and its output. Useful for recursion and functions with expensive IO operations or
+  calculations. Important note below: in summary, use both only with functions and
+  class/static methods. Not normal methods.
 - `@lru_cache`: Similar to `@cache` but you can indicate the maximum number of
-  elements to store with `(maxsize=X)`
+  elements to store with `(maxsize=X)`. Its variant `lfu_cache` keeps the most frequent
+  calls in the cache, while `lru_cache` is based on a queue.
+- `@functools.cached_property`: Creates a cached property where the property is
+  computed once and then stored into `__dict__` as a normal instance attribute. If you
+  want to re-calculate it, the only option is `del` the variable.
 - `@register`: Executes a function at the end of the execution
+
+Important note about cache-bsaed decorators: It is not recommended to use them with
+methods. These decorators create a reference to all the input arguments. Among the
+input arguments there is awlays a reference to the instance of a class (`self`).
+Therefore, if this instance is removed, there will be references to this object, as the
+decorator scope is global. Due to this, the garbage collector will not release the
+memory associated to this object, resulting in memory leaks. The solution is to
+implement a weak reference that allows to create cache container local to the class.
+
+About the cache stored, you can clean it by executing `function_name.cache_clear()`.
 
 ### Decorators for data classes
 
@@ -326,6 +342,24 @@ Some variables (such as `40 * 60` or `if var == [1, 2, 3]`) are stored as consta
 access them faster. In case of the list, this is stored as its equivalent immutable
 object (`tuple`). For the `set`, there is the `frozenset`.
 
+### Garbage collector
+
+Those objects that are not pointed by any of the variables will call the `__del__`
+method to release them from memory. This is done in a few cycles, so it is not
+instantaneous.
+More complex case:
+
+```python
+lst = []
+lst.append(1)
+a = [0, 1, 2]
+lst.append(a)
+lst = None
+```
+In this case, `lst` will be released from memory despite the presence of a pointer to
+`a`. At the end, `lst` is not more than a list of stored pointers, so it is safe for
+the garbage collector to remove it.
+
 ## Mutable vs inmutable objects
 
 Mutable objects can be modified in runtime. Immutable not:
@@ -391,6 +425,14 @@ For `Set`, you can use `FrozenSet` for its equivalent immutable object. For `Dic
 can use `MappingProxyType`, which is a proxy (wrapper) around the dict implementation
 to remove its writting methods.
 
+## Copies
+
+Two main approaches when coppying an object:
+
+- Shallow copy: It only copies the 1st level of an object.
+- Deep copy: It will copy ALL levels of an object. For example if different lists are
+  nested inside a list, it will also copy them.
+
 ## Performance
 
 ### Yield
@@ -415,6 +457,33 @@ You also have generator comprehensions:
 
 ```python
 (item for item in my_list if item > 3)
+```
+
+### Slots
+
+Instead of storing the instance attributes in a mutable dictionary, you can chooose to
+store them in a more opzimied memory that avoids hashing and indexing the dictionary.
+
+- It is about 20% faster
+- Multiple inheritance with both slot-based classes throws an error. Atributes cannot
+  be defined dynamically.
+
+Example:
+
+```python
+# For normal classes
+class MyClass:
+
+    __slots__ = ["a", "b"]
+    def __init__(self, a, b) -> None:
+        self.a = a
+        self.b = b
+
+# For dataclasses
+@dataclass(slots=True)
+class MyClass
+    a: int
+    b: int
 ```
 
 ### Abstract classes
@@ -465,6 +534,10 @@ Python scripts for variables and functions:
 [memprof repository](https://github.com/jmdana/memprof)
 
 ## Closures and decorators
+
+What's its use? They are used to create parametrized functions whose parameters go
+beyond the scope of the function. Imagine a function whose behaviours depend on a
+global variable.
 
 Closure is just a function that references a free variable (a.k.a non local variable).
 This free variable has memory outside of the scope.
@@ -561,3 +634,49 @@ fun('GeeksforGeeks')
 fun(10)
 fun(['g', 'e', 'e', 'k', 's'])
 ```
+
+## Iterables and Context Managers
+
+In order to do an iterable class, this must implement the `__iter__` method. This
+usually returns the `self` object. However, once this one is iterated till the end,
+there is no way to reset it. The solution is usually creating separate class that
+handle this. Then, in our `__iter__` class of the class to be iterable, we just return
+a new object of iterator class.
+
+```python
+class MyClassIterator:
+    def __init__(self, object: MyClass):
+        ...
+
+    def __next__():
+        # Return elements index by index
+        # Raise StopIteration if reach the end
+
+class MyClass:
+    def __iter__(self):
+        return MyClassIterator(self)
+```
+
+If we want to make our class iterable, the other option is to have the method
+`__getitem__` implemented. Python first looks at `__iter__`. If this is not defined, it
+will look at `__getitem__`. If not, it will raise an exception saying the class is not
+iterable. Remember that iterators can be exhausted while iterables not.
+
+### Itertools
+
+Module that provides tools to better iterate:
+
+- `islice()`:  To do slicing over an iterator (for example, slicing a generator). There
+  is not magic inside. It will call `next()` until it gets the values of interest.
+  Output is lazy, which means that they are loaded on demand.
+- `chain`: Used to "flatten" nested structures. It has `from_iterable()` method to
+  flatten nested iterables.
+
+### Context Managers
+
+Quick notes:
+
+- You can return  `True` or `False` in `__exit__` to ignore or not any exception
+- The `@contextmanager` decorator allows you to create a contexst manager from a
+  function. This allows you to do so without the previous creation of any class with
+  the `__enter__` and `__exit__` methods.

@@ -88,6 +88,31 @@ CT_co = TypeVar('CT_co', covariant=True, bound=type)
 AnyStr = TypeVar('AnyStr', bytes, str)
 ```
 
+## typing.self
+
+Problem when returning self instances, is that, when extending the class, you would
+need to override the method to overwrite the type hint. Example:
+
+```python
+
+class A:
+    def __enter__(self) -> A:
+        return self
+
+class B(A):
+    pass
+```
+
+In this case, the context manager of `B` would return type `A`. To solve this, you can
+use `Self` for typing self instances:
+
+```python
+
+class A:
+    def __enter__(self: Self) -> Self:
+        return self
+```
+
 ## typing.Protocol
 
 To hint classes that MUST have a given structure (instance attributes, methods...). In
@@ -151,6 +176,21 @@ a = foo(12)
 reveal_type(a)  # str
 foo('x')    # Type check error: incompatible type "str"; expected "int"
 ```
+
+Remember that you can use `ParamSpec` as a "typevar" for the input arguments. Example:
+
+```python
+P = ParamSpec('P')
+R = TypeVar('R')
+
+def print_hi(f: Callable[P, R]) -> Callable[P, R]:
+    @functools.wraps(f)
+    def print_hi_inner(*args: P.args, **kwargs: P.kwargs) -> R:
+        print("hi")
+        return f(*args, **kwargs)
+    return print_hi_inner
+```
+
 
 More info about decorators in [Mypy docs](https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators)
 

@@ -43,8 +43,8 @@ def test_decode_inverts_encode(s):
     assert decode(encode(s)) == s
 ```
 
-But it can also instantiate multiple of the class you want. This API will create them
-based on a combination of its input arguments.
+But it can also instantiate multiple of the class you want with `st.builds()`. This API
+will create them based on a combination of its input arguments.
 
 ## hypothesis-auto
 
