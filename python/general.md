@@ -147,7 +147,8 @@ Performance and safety related:
   class/static methods. Not normal methods.
 - `@lru_cache`: Similar to `@cache` but you can indicate the maximum number of
   elements to store with `(maxsize=X)`. Its variant `lfu_cache` keeps the most frequent
-  calls in the cache, while `lru_cache` is based on a queue.
+  calls in the cache, while `lru_cache` is based on a queue. Be aware that all keys
+  must be hashable (99% immutables ), as they are stored in a dictionary.
 - `@functools.cached_property`: Creates a cached property where the property is
   computed once and then stored into `__dict__` as a normal instance attribute. If you
   want to re-calculate it, the only option is `del` the variable.
@@ -360,11 +361,30 @@ In this case, `lst` will be released from memory despite the presence of a point
 `a`. At the end, `lst` is not more than a list of stored pointers, so it is safe for
 the garbage collector to remove it.
 
+### Weak vs strong references
+
+Gaarbage collector will collect those objects whose strong references count is 0. If
+this object has weak references pointer to it, they will be deleted as well. These are used to avoid memory leaks. You can create a new weakref as:
+
+```
+weakref.ref(object)
+```
+
+In case you need to store this object as a key in a dictionary, being this one a weak reference, this `weakref` module also implements a special dictionary for it:
+
+```
+dct = WeakKeyDictionary()
+dct[object] = value
+```
+
+If all strong references to `ibject` are removed, this key will be removed as well, as
+this is a weak reference.
+
 ## Mutable vs inmutable objects
 
 Mutable objects can be modified in runtime. Immutable not:
 
-- Immutable: int, float, bool, str, tuple and unicode.
+- Immutable: int, float, bool, str, tuple and unicode, views.
 - Mutable: list, set and dict.
 
 **Caution:** When setting the default arguments of a function, remember that these are not
@@ -419,11 +439,17 @@ to_append()  # [1, 2, 3, 4]
 For all these cases, it would be the same if you create a list and send that memory
 address as input argument to the `to_append()` function.
 
+For the `views` (keys, values of a dictionary), these are dynamic references to the
+key/values of a dictionary. They behave as a set, meaning that all set operations can
+be performed. Exception: values view when values are repeated.
+
 ### Immutable alternatives
 
 For `Set`, you can use `FrozenSet` for its equivalent immutable object. For `Dict` you
 can use `MappingProxyType`, which is a proxy (wrapper) around the dict implementation
-to remove its writting methods.
+to remove its writting methods. However, take into account that this works as a `view`
+item (immutable dynamic reference to the original dictionary). Therefore, if we modify
+the original dictionary the `MappingProxyType` will also be changed.
 
 ## Copies
 
@@ -485,6 +511,8 @@ class MyClass
     a: int
     b: int
 ```
+
+If I subclass from `MyClass` I only need to define the new slots that will be included. `Python` will take the other ones from the super classes as well.
 
 ### Abstract classes
 
@@ -680,3 +708,50 @@ Quick notes:
 - The `@contextmanager` decorator allows you to create a contexst manager from a
   function. This allows you to do so without the previous creation of any class with
   the `__enter__` and `__exit__` methods.
+
+## Hash, dicts
+
+### Ordered dict
+
+From Python 3.6 dicts are ordered by default. However, this class `OrderedDict` offers
+a few extra advantages. The main one is that you can pop first and last items from the
+dictionary. This means that it can work as a `queue` (`dequeue` object in Python).
+However, be aware that it is much slower. The advantage of using this one is that
+checking if an object is in the container is much quicker for `OrderedDict` than
+in `dequeue`. Why? Because the queue needs to iterate over all its elements.
+The `OrderedDict` just needs to perform a single lookup.
+
+### Counter
+
+Dictionary-type that keep tracks of the count of different elementso.
+
+### UserDict
+
+Class intended to be used as super class of user-defined dictionaries. Recommended to
+do it from this one and not from `dict` as this one guarantees that the dunder methods
+are correctly called if I override them.
+
+### Serializing and deserializing
+
+Pickling is a way of serializing, but be aware that it executed code snippets, so only use it with safe files.
+You can also use `JSON` or `PyYaml`:
+
+- `JSON`: You can define your own `default` serializer, that serialized unknown data
+  types in the way you want to.
+- `PyYaml`: Use `safe_dump` to avoid executing code. However, this will prevent
+  `Python` to save custom classes. For this, you can create "safe" classes like this:
+```python
+class User(yaml.YAMLObject):
+    yaml_loader = yaml.SafeLoader  # Mark it as safe 
+    yaml_tag = u'!User'  # Add a tag to be used to identify the class in the .yaml file
+
+    def __init__(self, name, surname):
+       self.name= name
+       self.surname= surname
+```
+
+#### Extra tools
+
+- `JsonSchema` to validate `JSON` files (like types, range of an integer and so on).
+- `Matshmallow` to define schemas that define how different custom classes must be
+  converted into simpler types that can be serialized and deserialized
