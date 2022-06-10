@@ -148,14 +148,16 @@ Performance and safety related:
 - `@lru_cache`: Similar to `@cache` but you can indicate the maximum number of
   elements to store with `(maxsize=X)`. Its variant `lfu_cache` keeps the most frequent
   calls in the cache, while `lru_cache` is based on a queue. Be aware that all keys
-  must be hashable (99% immutables ), as they are stored in a dictionary.
+  must be hashable (99% immutables ), as they are stored in a dictionary. Be aware that
+  this decorator creates a strogn reference to all the input arguments, meaning that it
+  can cause memory leaks.
 - `@functools.cached_property`: Creates a cached property where the property is
   computed once and then stored into `__dict__` as a normal instance attribute. If you
   want to re-calculate it, the only option is `del` the variable.
 - `@register`: Executes a function at the end of the execution
 
 Important note about cache-bsaed decorators: It is not recommended to use them with
-methods. These decorators create a reference to all the input arguments. Among the
+methods. These decorators create a strong reference to all the input arguments. Among the
 input arguments there is awlays a reference to the instance of a class (`self`).
 Therefore, if this instance is removed, there will be references to this object, as the
 decorator scope is global. Due to this, the garbage collector will not release the
@@ -637,6 +639,9 @@ wrapped_func = my_decorator(func)
 wrapped_func()
 ```
 
+Important note: Be careful because cmprehensions and lambda functions might create a
+closure with free variables and it is not so easy to see.
+
 ## Single dispatch (pseudo function overload)
 
 As an example, in the following code the function `fun` defines a default behaviour.
@@ -755,3 +760,21 @@ class User(yaml.YAMLObject):
 - `JsonSchema` to validate `JSON` files (like types, range of an integer and so on).
 - `Matshmallow` to define schemas that define how different custom classes must be
   converted into simpler types that can be serialized and deserialized
+
+## Enums
+
+For enums, take into account that any method defined in the class scope will act as a
+bound-method (as any other method inside a class). The difference is that each enum you
+defined is an instance of the enum. In the example below, `Foo.FOO1` and `Foo.FOO2` are
+instances of `Foo`. Meaning that doing `Foo.FOO1.func()` will be a bound method
+being `self` this same instance.
+
+```python
+class Foo(Enum):  
+    # you could comma separate any combination for a given state
+    FOO1 = "foo1"   
+    FOO2 = "foo2"
+
+    def func(self):
+        print("This is my func")
+```
