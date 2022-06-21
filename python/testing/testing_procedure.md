@@ -44,8 +44,8 @@ def fixt(request):
     marker = request.node.get_closest_marker("fixt_data")
     if marker is None:
         data = None
-    else
-        data = market.args[0]
+    else:
+        data = marker.args[0]
     return data
 
 @pytest.mark.fixt_data(42)

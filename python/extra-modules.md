@@ -74,6 +74,8 @@ def test_add(test_case: TestCase, tmpdir):
 
 This test generates many input combinations based on `int`.
 
-## dataclass json
+## pytest-find-dependencies
 
-## yamldataclassconfig
+[Link](https://pypi.org/project/pytest-find-dependencies/)
+
+It allows to find tests that, when combined together, trigger a FAIL.
