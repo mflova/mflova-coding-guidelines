@@ -27,7 +27,7 @@ of states. You can take snapshots that will rememeber the current state of the o
 ## Observer
 
 Allows notificaion of changes or events being triggered in a component. It can be
-either a instance attribute or property for example. Other classes can
+either an instance attribute or property for example. Other classes can
 subscribe/unsuscribe to the list that notifies these changes.
 
 

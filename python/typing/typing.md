@@ -154,6 +154,20 @@ class Movie(MovieBase, total=False):
     based_on: str
 ```
 
+You can use `Required` and `NotRequired` to indicate potentially missing keys. Example:
+
+```python
+class Movie(TypedDict, total=False):
+    title: Required[str]
+    year: int
+
+dct = Movie()  # Missing key `title` for `TypeDict` "Movie"
+```
+
+Compatible with inheritance to create dictionaries with more fields. At the end this
+type behaves as a `NamedTuple` but without the corresponding runtime check, meaning
+that you can add many more keys. Mypy will raise an error but not in runtime.
+
 ### Aliases
 
 If the annotation gets so long, you can always use type annotations like this one:

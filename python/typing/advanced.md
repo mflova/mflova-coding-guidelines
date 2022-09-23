@@ -88,7 +88,7 @@ CT_co = TypeVar('CT_co', covariant=True, bound=type)
 AnyStr = TypeVar('AnyStr', bytes, str)
 ```
 
-## typing.self
+## typing.Self
 
 Problem when returning self instances, is that, when extending the class, you would
 need to override the method to overwrite the type hint. Example:
@@ -150,10 +150,18 @@ If `self` is not necessary, just tag the method as `@staticmethod`. You can use
 in runtime with `isinstance(variable, my_protocol)`. Take into account that this one
 does not check the signature of the methods.
 
+Why should we use it against `ABC`/inheritance?
+I would only use it to type hint methods that are comign from this party libraries.
+When we cannot modify it, we can use them to provide a common interface instead of
+realying on concrete classes (dependency inversion). Protocols can also be used for
+fixtures in pytest, where the type hints are not well derived for example.
+
 ## Decorators
 
 One common application of type variable upper bounds is in declaring a decorator that
 preserves the signature of the function it decorates, regardless of that signature.
+However, it is recommended to use `ParamSpec`, as it is a variable that used created
+for this.
 
 ```python
 from typing import Any, Callable, TypeVar, cast
@@ -177,18 +185,64 @@ reveal_type(a)  # str
 foo('x')    # Type check error: incompatible type "str"; expected "int"
 ```
 
-Remember that you can use `ParamSpec` as a "typevar" for the input arguments. Example:
+### typing.ParamSpec
+
+Remember that you can use `ParamSpec` to indicate that the arguments that one high
+order function (the ones that can be used as decorator) receives are directly forwarded
+to an inner function (i.e. decorator does not change signature of the function that
+decorates)
 
 ```python
+## Example 1
 P = ParamSpec('P')
-R = TypeVar('R')
 
-def print_hi(f: Callable[P, R]) -> Callable[P, R]:
+# This function tells you that `print_hi` is a decorator that can only be used for
+# functions that return None. About its arguments, you can see that the decorator does
+# not modify them
+def print_hi(f: Callable[P, None]) -> Callable[P, None]:
     @functools.wraps(f)
     def print_hi_inner(*args: P.args, **kwargs: P.kwargs) -> R:
         print("hi")
         return f(*args, **kwargs)
     return print_hi_inner
+
+## Example 2
+T = TypeVar('T')
+P = ParamSpec('P')
+
+# This function tells you that `print_hi` is a decorator that can only be used for
+# any function. About its arguments, you can see that the decorator does
+# not modify them as well as its return type.
+def print_hi(f: Callable[P, None]) -> Callable[P, None]:
+    @functools.wraps(f)
+    def print_hi_inner(*args: P.args, **kwargs: P.kwargs) -> R:
+        print("hi")
+        return f(*args, **kwargs)
+    return print_hi_inner
+```
+
+### typing.Concatenate
+
+Use it when the high order function (the ones that can be used as decorator) modify the
+input arguments of the function that decorates. It is always used along
+with `ParamSpec`. For the example below you can see how if `with_request` is used to
+decorate a function, the decorated function needs to have `Request` object as first
+argument. Then, the resulting decorated function will not have that input argument.
+
+
+```python
+from typing import Concatenate, Callable, TypeVar, ParamSpec
+
+R = TypeVar('R')
+P = ParamSpec('P')
+
+class Request:
+    pass
+
+def with_request(f: Callable[Concatenate[Request, P], R]) -> Callable[P, R]:
+  def inner(*args: P.args, **kwargs: P.kwargs) -> R:
+    return f(Request(), *args, **kwargs)
+  return inner
 ```
 
 

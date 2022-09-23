@@ -132,7 +132,7 @@ class MyClass:
 
 ## Misc
 
-### Set name
+### Set name [Optimal approach 90% of the times]
 
 From Python 3.6, you can also define `__set_name__` to get the name of the property. This is:
 
@@ -244,7 +244,7 @@ instance `__dict__`. Therefore, when you do `getattr(instance, self.property_nam
 being `self.property_name = _my_name`, there is not any descriptor with this name,
 meaning that will directly go to `__dict__` to avoid this infinite recursion.
 
-### Accessing descriptor variables from the class that makes se of it
+### Accessing descriptor variables from the class that makes use of it
 
 Imagine that we have some input arguments to the a descriptor that validates the data
 type. In the code below, we assigned this to a `num`. After the execution, how can he

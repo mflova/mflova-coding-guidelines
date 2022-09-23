@@ -32,7 +32,7 @@ The idea here, would be to define `Color` as a separate class and contain this o
 
 Useful when you need to execute an operation that needs to be recursively applied to
 all the other objects in a tree hierarchical structure. For example, calculating the
-price of all the objects belonging to the hierarchy. This hierarchi might be a box,
+price of all the objects belonging to the hierarchy. This hierarchiy might be a box,
 composed of different small objects and boxes. Calculating its price might recursively
 go to each object adding up all the values. You do not have to care about the concrete
 classes that are below in the tree.

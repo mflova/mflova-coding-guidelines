@@ -7,7 +7,7 @@ For good coding practices, SOLID design principles should apply:
    modifications.
  - (L)iskov substitution principle: When expected a base class, assigning any subclass
    should be working.
- - (I)nterface seggeregation: Many different interfaces prefered over a single one.
+ - (I)nterface seggregation: Many different interfaces prefered over a single one.
    Each interface can be responsible for a single feature. Then, with inheritance, a
    class can inherit from more than one interface.
  - (D)ependency inversion: Make the code depend on abstractions instead of concrete

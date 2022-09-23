@@ -79,3 +79,36 @@ This test generates many input combinations based on `int`.
 [Link](https://pypi.org/project/pytest-find-dependencies/)
 
 It allows to find tests that, when combined together, trigger a FAIL.
+
+## pyinstrument
+
+[Link](https://github.com/joerick/pyinstrument)
+
+Python profiler that can be used for both scripts and tests. Profile tests with:
+
+```bash
+pyinstrument -m pytest [pytest-args]
+```
+
+## strictyaml
+
+[Link](https://github.com/crdoconnor/strictyaml)
+
+StrictYAML is a type-safe YAML parser that parses and validates a restricted subset of
+the YAML specification.
+
+## Schema
+
+[Link](https://github.com/keleshev/schema)
+
+Validate any kind of structure by providing schema. These structure might be
+dictionaries, callables, classes, int...
+
+## pytest-fixture-typecheck
+
+[Link](https://pypi.org/project/pytest-fixture-typecheck/)
+
+Mypy cannot infere if type hints for fixtures are ok or not. This plugin will verify
+during runtime taht they are ok. If not, the test itself will fail.
+
+It seems that it is no longer working.
