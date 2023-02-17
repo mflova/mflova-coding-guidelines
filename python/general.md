@@ -365,14 +365,16 @@ the garbage collector to remove it.
 
 ### Weak vs strong references
 
-Gaarbage collector will collect those objects whose strong references count is 0. If
-this object has weak references pointer to it, they will be deleted as well. These are used to avoid memory leaks. You can create a new weakref as:
+Garbage collector will collect those objects whose strong references count is 0. If
+this object has weak references pointer to it, they will be deleted as well. These are
+used to avoid memory leaks. You can create a new weakref as:
 
 ```
 weakref.ref(object)
 ```
 
-In case you need to store this object as a key in a dictionary, being this one a weak reference, this `weakref` module also implements a special dictionary for it:
+In case you need to store this object as a key in a dictionary, being this one a weak
+reference, this `weakref` module also implements a special dictionary for it:
 
 ```
 dct = WeakKeyDictionary()
@@ -390,8 +392,8 @@ Mutable objects can be modified in runtime. Immutable not:
 - Mutable: list, set and dict.
 
 **Caution:** When setting the default arguments of a function, remember that these are not
-assigned every time the function is called, but when the function is defined (module imported). Due to
-this, doing:
+assigned every time the function is called, but when the function is defined (module
+imported). Due to this, doing:
 
 ```python
 # This will create a list "to" that will be shared among all the calls of the function. 
@@ -493,8 +495,8 @@ Instead of storing the instance attributes in a mutable dictionary, you can choo
 store them in a more opzimied memory that avoids hashing and indexing the dictionary.
 
 - It is about 20% faster
-- Multiple inheritance with both slot-based classes throws an error. Atributes cannot
-  be defined dynamically.
+- Multiple inheritance with both slot-based classes throws an error.
+- Atributes cannot be defined dynamically.
 
 Example:
 
@@ -514,7 +516,8 @@ class MyClass
     b: int
 ```
 
-If I subclass from `MyClass` I only need to define the new slots that will be included. `Python` will take the other ones from the super classes as well.
+If I subclass from `MyClass` I only need to define the new slots that will be included.
+`Python` will take the other ones from the super classes as well.
 
 ### Abstract classes
 
@@ -738,7 +741,8 @@ are correctly called if I override them.
 
 ### Serializing and deserializing
 
-Pickling is a way of serializing, but be aware that it executed code snippets, so only use it with safe files.
+Pickling is a way of serializing, but be aware that it executed code snippets, so only
+use it with safe files.
 You can also use `JSON` or `PyYaml`:
 
 - `JSON`: You can define your own `default` serializer, that serialized unknown data
@@ -758,7 +762,7 @@ class User(yaml.YAMLObject):
 #### Extra tools
 
 - `JsonSchema` to validate `JSON` files (like types, range of an integer and so on).
-- `Matshmallow` to define schemas that define how different custom classes must be
+- `Marshmallow` to define schemas that define how different custom classes must be
   converted into simpler types that can be serialized and deserialized
 
 ## Enums

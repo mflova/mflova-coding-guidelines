@@ -82,7 +82,8 @@ this. If we store it in a normal dictionary:
 
 For more info about weak vs strong references, see `general.md`
 
-Then, how can a data descriptor be implemented without memory leaks and for classes that are not hashable?
+Then, how can a data descriptor be implemented without memory leaks and for classes
+that are not hashable?
 
 ```
 class IntegerValue:
@@ -283,7 +284,7 @@ Although these have some advantages, they can be used in many cases. Last method
 most recommended and used:
 
 - Instead of the above implementation, you can just create a `WeakRefDictionary` being
-  the key the instance and the value the value. The only problem is that the class has
+  the key the instance and the value. The only problem is that the class has
   to be hashable. This means that `__hash__` has to be defined (by default this is the
   id of the instance in custom classes) and that `__eq__` operator has to be equal
   if `hash(a) == hash(b)`. For custom classes, by default, everything is ok. However,

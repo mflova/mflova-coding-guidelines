@@ -78,7 +78,7 @@ What happens if the class to create has its own hierarchy (abstract class, deriv
 classes)...? We can just replicate the same hierarchy but by adding `Factory` at the
 end of the class.
 
-## Prottotype
+## Prototype
 
 Prototypes are tipically partially initialized objects that can be used as a starting
 point to build an object. Due to its nature, they are typically implemented with the

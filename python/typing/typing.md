@@ -460,7 +460,7 @@ This is how types interact each others in `Generic` types. Taking into account t
 - If B is allowed when expecting A: it is covariant. Examples: mostly immutable types
   in Python (like tuples). About the typing package, `Union` is one example. Which means
   that `Union[C, D]` is expecting either C or D or any of these subclasses.
-- If A is allowerd when expecting B: it is contravariant. Typical examples are argument for the `Callable` type.
+- If A is allowed when expecting B: it is contravariant. Typical examples are argument for the `Callable` type.
 - If none of them is allowed: it is invariant. Typically from mutable types suchas as `List` or `Dict`.
 
 When you have a combination of covariant and invariant, the most restrictive applies. Here are some examples:

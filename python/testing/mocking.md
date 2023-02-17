@@ -69,7 +69,6 @@ Patch a dictionary, or dictionary like object, and restore the dictionary to its
 
 ```python
 patch.dict(in_dict, values=(), clear=False, **kwargs)¶
-
 ```
 
 #### Objects or multiple variables
@@ -79,7 +78,7 @@ You can use `patch.object` and `patch.multiple`. See more info in the documentat
 ## Practical concepts I learnt while programming
 
 Note: Remember that, when setting the path to the object to patch, you must provide the
-patch from where it is called, NOT where it is definedd. If doubts, see
+patch from where it is called, NOT where it is defined. If doubts, see
 [this](https://medium.com/@durgaswaroop/writing-better-tests-in-python-with-pytest-mock-part-2-92b828e1453c)
 
 ```python
@@ -98,7 +97,7 @@ def test_guess_number(mock_roll_dice, _input, expected):
 # More complex functions that we modify its inside
 @mock.patch("myapp.sample.requests.get")
 def test_get_ip(mock_request_get):
-    mock_requests_get.return_value = mock.Mock(name"mock response", **{"status_code": 200, [...]})
+    mock_requests_get.return_value = mock.Mock(name="mock response", **{"status_code": 200, [...]})
     assert get_ip == "0.0.0.0"
 ```
 

@@ -109,6 +109,6 @@ dictionaries, callables, classes, int...
 [Link](https://pypi.org/project/pytest-fixture-typecheck/)
 
 Mypy cannot infere if type hints for fixtures are ok or not. This plugin will verify
-during runtime taht they are ok. If not, the test itself will fail.
+during runtime that they are ok. If not, the test itself will fail.
 
 It seems that it is no longer working.
