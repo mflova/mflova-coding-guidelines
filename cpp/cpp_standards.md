@@ -87,8 +87,29 @@ Main changes introduced:
 
 - New algorithms and types added to STL. Like:
   - `any`: Handles multiple types.
-  - `optional`
-  - `variant`
+  - `optional`: Handles null values
+
+  ```cpp
+    std::optional<int> x = my_function();
+    if (x) {
+        std::cout << *x << std::endl;  // prints "42"
+    }
+  ```
+
+  - `variant`: To store multiple a value that can have multiple types. You use `std::get`
+    to obtain its value:
+
+  ```cpp
+    int main() {
+        std::variant<int, double, std::string> v = "hello";
+        std::cout << std::get<std::string>(v) << std::endl;  // prints "hello"
+
+        v = 3.14;
+        std::cout << std::get<double>(v) << std::endl;  // prints "3.14"
+        return 0;
+    }
+
+  ```
 
 - `constexpr` is an `if` condition but instead of checked at runtime, it is done at
   compilation time. Useful when comparing `const` variables or anything else that can
@@ -102,9 +123,60 @@ Main changes introduced:
 
 ## C++20:
 
-- Concepts, which provide a new way to express and check template constraints.
-- Coroutines, which enable lightweight concurrency and cooperative multitasking.
-- Modules, which allow for more efficient and safer organization of code than header files.
-- Ranges, which provide a more modern and composable way to work with sequences of elements.
+- Concepts, which provide a new way to express and check template constraints. A
+  concept is a named set of requirements that a type must satisfy in order to be used
+  as a template argument. As an example, you can say that the type must have a given
+  operator or you can restrict to certain types like below:
+
+  ```
+    #include <concepts>
+    #include <string>
+    #include <iostream>
+
+    template <typename T>
+    concept IsIntOrString = std::same_as<T, int> || std::same_as<T, std::string>;
+
+    void foo(IsIntOrString auto arg) {
+      std::cout << arg << '\n';
+    }
+
+    int main() {
+      int x = 42;
+      std::string hello = "Hello, world!";
+      foo(x);     // OK
+      foo(hello); // OK
+      foo(3.14);  // error: no matching function for call to 'foo(double)'
+    }
+  ```
+- Modules, which allow for more efficient and safer organization of code than header
+  files. They allow developers to write code that can be compiled separately and linked
+  together, reducing build times and making it easier to manage large projects. Modules
+  also provide better name hiding and more fine-grained control over the visibility of code.
+  ```cpp
+    // my_module.cpp
+    module my_module;
+
+    export void my_function() {
+        // ...
+    }
+
+    // A new `my_module` is defined. The export keyword is used to make `my_function`
+    // available to other modules. Then you can import it with `export my_module`.
+  ```
+- Ranges library, which provide a more modern and composable way to work with sequences of elements.
 - The spaceship operator, `<=>`, for easy definition of comparison operations.
--The format library, which provides a type-safe and extensible way to format strings.
+- The format library, which provides a type-safe and extensible way to format strings.
+
+    ```cpp
+    auto s = std::format("My name is {} and I'm {} years old.", name, age);
+    // Before (with array)
+    char buffer[100];
+    int value = 42;
+    std::sprintf(buffer, "The value is %d", value);
+    // Before (with std::string)
+    std::string name = "Alice";
+    std::string message = "Hello, " + name + "!";
+    ```
+
+- Coroutines, which enable lightweight concurrency and cooperative multitasking. Enable
+  lightweight concurrency and cooperative multitasking
