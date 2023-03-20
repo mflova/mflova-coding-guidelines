@@ -60,7 +60,8 @@ Main changes introduced:
     ```
 
 - Inline variables that can be defined in headers without causing linker errors.
-- Deduction guides for class templates. This is some kind of guide that indicates that, for a given parameter type, what will be the resolved type for the template. Example:
+- Deduction guides for class templates. This is some kind of guide that indicates that,
+  for a given parameter type, what will be the resolved type for the template. Example:
 
     ```cpp
     template<typename T>
