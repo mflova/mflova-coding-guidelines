@@ -4,7 +4,15 @@ These examples can be found [here](https://refactoring.guru/design-patterns/stru
 
 ## Adapter
 
-Implements an `Adapter` class that adapts the interface of our API to other API.
+Implements a `Adapter` class that adapts the interface of our API to other API. Main classes:
+
+- `Client interface`: Abstract class with a single method `method` that describes the
+  that describes the input of our own data that will be converted. Then, derived
+  classes will convert that data depending on the aimed API.input of our own data that
+  will be converted. Then, derived classes will convert that data depending on the
+  aimed API.
+- `Adapter`: Subclass of client interface. This one implements the content of `method`
+  so that it works with the aimed API.
 
 ## Bridge
 
@@ -40,13 +48,16 @@ classes that are below in the tree.
 ## Facade
 
 It is about building a class that hides the inner implementation of the code. This can
-be done by adding public methods that make use of these complex calls.
+be done by adding public methods that make use of these complex calls. For example,
+converting a video involves many different conversion (audio, codec, video...). We can
+create a higher level class that with a single method `convert` performs this in the
+inside.
 
 ## Flyweight
 
 Used when the class usually stores repeated data from a big database. For example, many names.
 Instead of having an attribute of the class to save the name, this pattern stores the
-possible name sin the cache and then each instance of the class references the saved one.
+possible name in the cache and then each instance of the class references the saved one.
 
 ## Proxy
 

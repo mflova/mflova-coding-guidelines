@@ -41,6 +41,9 @@ not only the library.
 - `target_link_libraries`: Specify libraries or flags to use when linking a given
   target and/or its dependents
 - `find_package`: Include external packages.
+- `include_directories`: This function will make the compiler add these directories
+  with `-I` flag. This flag contains all directories where the compiler will search for
+  libraries. Useful for absolute path includes.
 
 ## Complex projects
 
@@ -55,7 +58,6 @@ CMakeLists.txt
 somelib/CMakeLists.txt
 somelib/foo.hpp
 somelib/foo.cpp
-someexe/CMakeLists.txt
 someexe/main.cpp
 ```
 
@@ -80,15 +82,6 @@ target_link_libraries(Project Foo)
 # somelib/CMakeLists.txt
 # Compile and link foo.cpp
 add_library(Foo STATIC foo.cpp)
-```
-
-```cmake
-# someexe/CMakeLists.txt
-# add some lib to header search path
-include_directories(../somelib/)
-add_executable(Hello main.cpp)
-# link to Foo library
-target_link_libraries(Hello Foo)
 ```
 
 ## Searching for source files
