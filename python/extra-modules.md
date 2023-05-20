@@ -112,3 +112,9 @@ Mypy cannot infere if type hints for fixtures are ok or not. This plugin will ve
 during runtime that they are ok. If not, the test itself will fail.
 
 It seems that it is no longer working.
+
+## pytest-clarity
+
+[Link](https://github.com/darrenburns/pytest-clarity)
+
+Improves much more the diff in the assertions for built-in Python types
