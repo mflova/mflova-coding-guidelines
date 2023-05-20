@@ -53,6 +53,14 @@ mock.patch(target, return_value=return_value, side_effec=side_effect)
 
 However, there are specific ways to mock specific objects. These are detailed below.
 
+Important note: It is not recommended to use plain Mock() objects to replace an existing one. If we do,
+Mock will dynamically "create" any attribute that our function to test might access. Therefore, it is
+not realistic, as Mock will not raise an exception but the real object might do it. To solve this issue,
+it is recommended using the keyword argument "spec" that will create our mock object with same attributes
+as the object to replicate. However, the function `create_autospec` impleemnts a more in deep replication.
+This same feature is available when doing `patch`. There is a keyword only argument called `autospec`
+where we can use either `True` to have same specifications as the object being replaced or we can pass another object.
+
 ### Mocking specific objects
 
 #### Non-callable objects (variables, attributes)
