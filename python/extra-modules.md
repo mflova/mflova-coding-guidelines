@@ -118,3 +118,27 @@ It seems that it is no longer working.
 [Link](https://github.com/darrenburns/pytest-clarity)
 
 Improves much more the diff in the assertions for built-in Python types
+
+## numba
+
+[Link](https://numba.pydata.org/)
+
+Perform just in time compilation for specific functions. This means that the code is
+no longer fed into the Python interpreter, but compiled once and cached whenever it
+is called. It works well with `numpy` and `for` loops
+This library mainly uses one decorator:
+
+```python
+import numba
+
+@numba.jit
+def my_func():
+    ...
+```
+
+Interesting flags:
+ - `nopython`: Forces all the code to be compiled. If there is a problem, a exception
+    is raised. Recommended to alwyas have it set to `True`
+ - `parallel`: It will analyze the code and parallelize if possible. You can also
+    use  `prange` to explicitely indicate parallel loops.
+ - `fastmath`: Sacrifice accuracy in exchange of speed
