@@ -139,6 +139,28 @@ def my_func():
 Interesting flags:
  - `nopython`: Forces all the code to be compiled. If there is a problem, a exception
     is raised. Recommended to alwyas have it set to `True`
- - `parallel`: It will analyze the code and parallelize if possible. You can also
-    use  `prange` to explicitely indicate parallel loops.
+ - `parallel`: It will analyze the code and parallelize (multithread) if possible.
+    You can also use  `prange` to explicitely indicate parallel loops.
  - `fastmath`: Sacrifice accuracy in exchange of speed
+ - `device`: Set to `True` to be sent to CUDA GPU.
+
+Another decorator is `vectorize`. It allows to vectorize a function. THis is "grouping"
+input data as vectors in order to use specific vector-based instructions inside the CPU.
+It requires defining the signature of the function like in the example below. This
+decorator can be also combined with `nopython` for greater improvement.
+
+```python
+from numba import vectorize, float64
+
+@vectorize([float64(float64, float64)])
+def f(x, y):
+    return x + y
+```
+
+## cupy
+
+[Link](https://cupy.dev/)
+
+This library brings the GPU usage into Python. It implements has equivalent numpy and scipy
+libraries but to work with GPU. The problem is that it needs to have CUDA and therefore a
+NVIDIA GPU.
