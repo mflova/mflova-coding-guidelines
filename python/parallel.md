@@ -1,5 +1,8 @@
 # Parallel
 
+This information is mainly outdated. For simple parallel programs, it is
+recommended to use the library `concurrent.futures` and `Pool`'s objects.
+
 ## Multithreading
 
 Typical for IO-bound problems, as Python executes the threads concurrently (same
