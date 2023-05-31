@@ -142,7 +142,8 @@ Interesting flags:
  - `parallel`: It will analyze the code and parallelize (multithread) if possible.
     You can also use  `prange` to explicitely indicate parallel loops.
  - `fastmath`: Sacrifice accuracy in exchange of speed
- - `device`: Set to `True` to be sent to CUDA GPU.
+
+Note this module optionally works with CUDA.
 
 Another decorator is `vectorize`. It allows to vectorize a function. THis is "grouping"
 input data as vectors in order to use specific vector-based instructions inside the CPU.
@@ -156,6 +157,9 @@ from numba import vectorize, float64
 def f(x, y):
     return x + y
 ```
+
+Vectorize tends to be much quicker than `jit`, as it provides more information to the
+compiler.
 
 ## cupy
 
