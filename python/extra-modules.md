@@ -123,6 +123,8 @@ Improves much more the diff in the assertions for built-in Python types
 
 [Link](https://numba.pydata.org/)
 
+More in `speed-up-md`
+
 Perform just in time compilation for specific functions. This means that the code is
 no longer fed into the Python interpreter, but compiled once and cached whenever it
 is called. It works well with `numpy` and `for` loops
@@ -164,6 +166,8 @@ compiler.
 ## cupy
 
 [Link](https://cupy.dev/)
+
+More in `speed-up-md`
 
 This library brings the GPU usage into Python. It implements has equivalent numpy and scipy
 libraries but to work with GPU. The problem is that it needs to have CUDA and therefore a
