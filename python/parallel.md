@@ -2,6 +2,7 @@
 
 This information is mainly outdated. For simple parallel programs, it is
 recommended to use the library `concurrent.futures` and `Pool`'s objects.
+There is more info about it in `speed_up.md`
 
 ## Multithreading
 
