@@ -164,14 +164,24 @@ ONLY one. Then, by adding the decorator, your function will admit whole vectors.
 ```python
 from numba import float32, float64, vectorize
 
+# V1
+@vectorize
+def vec_operation(a: float, b: float, c: float) -> float:
+    return math.sqrt(b**2 - 4 * a * c)
+
+# V2
 @vectorize([float32(float32, float32, float32), float64(float64, float64, float64)], nopython=True)
 def vec_operation(a: float, b: float, c: float) -> float:
     return math.sqrt(b**2 - 4 * a * c)
 
 ```
 
-As you can see in the example above, the decorator requires you to define the signature
-of the function. It admits more than one. Then, the function can be called as:
+As you can see in the example above, you can specify the signature of the function in
+the decorator or not. If it is not done, `numba` will perform lazy compilation. This
+means that when the code is running, it will perform the vectorization depending on
+the type of data that it receives and it will cache the vectorized function for its
+later use. If we know the function signature, it is recommended to use it. Then,
+the function can be called as:
 
 ```python
 # being all A, B, C and D arrays
@@ -180,6 +190,28 @@ D = vec_operation(A, B, C)
 
 Note that this decorator will make the function untyped. To fix it, you can also create
 a wrapper around it.
+
+#### Reduced vectorized functions
+
+`numpy` allows to apply specific functions to any axis we want. Let's say for `np.mean`. You can either compute the mean for all values or you ca specify the axis like `np.mean(arr, axis=0)`. These are called reduced vectorized functions and can be implemented with `numba` as well. This is done with `identity="reorderable`:
+
+```python
+@vectorize(
+    [
+    int64(int64,int64), 
+    float32(float32,float32), 
+    float64(float64,float64)
+    ],
+    identity="reorderable"  # This flag is the key
+)
+def numba_add(x, y):
+    return x + y
+
+# Note how reduce is used to create a reduced version of the function
+numba_add.reduce(a, axis=0)
+numba_add.reduce(a, axis=1)
+```
+
 
 #### @guvectorize
 
@@ -215,6 +247,11 @@ In the eexample above, there are different things to take into account.
 
 ### GPU and cuda
 
+There are two main approaches:
+- `@vectorize` with flag `taget="cuda"`: Easier to implement. You dont need to manage memory, threads, blocks, syncornization or any other hardware related stuff. `numba` infers all of it for you.
+- `@cuda.jit` this one is much harder, having to manage all the things mentioned before. However, the user has better control. This one will not be explained in this guide.
+
+#### @vectorize with target cuda
 Important note: Check that cuda is properly set up in the computer
 before (check `cuda.md`).
 
@@ -260,4 +297,19 @@ l2_cpu = np.linalg.norm(x_cpu)
 
 x_gpu = cp.array([1, 2, 3])
 l2_gpu = cp.linalg.norm(x_gpu)
+```
+
+About how memory is transfered, here is a more detailed example:
+
+```python
+import cupy as cp
+
+# Allocates mmemory in CPU
+cpu_array = cp.arange(10)
+# Allocates memory in GPU
+gpu_array = cp.array(cpu_array)
+# Perform operation (result stored in GPU)
+gpu_result = cp.sin(gpu_array)
+# Copy the result back to the CPU memory
+cpu_result = gpu_result.get()
 ```
