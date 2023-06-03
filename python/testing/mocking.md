@@ -14,6 +14,13 @@ This way we can directly force it to retrieve the values we want. These can be:
 - Exception raised
 - Classes and its attributes
 
+Be aware that there are 2 different types:
+
+- Mocking: Create an object with `mock` library.
+- Stub: Same calls than the original object but less complex than a fake. Usually created
+  as a separete class.
+- Fake: Complex object and very functional. Usually created as a separate class.
+
 ## Theoretical concepts
 
 Briefly, `mock` from `unittest` is Python built-in. There are tyipically two main
@@ -42,6 +49,10 @@ func.assert_called_with()
 func.assert_called_once_with()
 ```
 
+This technique about verifying wether our objects was called and how, it is called "spy"
+or "spying". If you want to create a whole class base objects and inspect any of its
+attributes, you can use `wraps` flag, avaialble in `mock.path` or `Mock`.
+
 You can use `mock.patch` to substitute the behaviour of currently defined objects/classes/attributes...
 
 ```python
@@ -53,13 +64,19 @@ mock.patch(target, return_value=return_value, side_effec=side_effect)
 
 However, there are specific ways to mock specific objects. These are detailed below.
 
-Important note: It is not recommended to use plain Mock() objects to replace an existing one. If we do,
-Mock will dynamically "create" any attribute that our function to test might access. Therefore, it is
-not realistic, as Mock will not raise an exception but the real object might do it. To solve this issue,
-it is recommended using the keyword argument "spec" that will create our mock object with same attributes
-as the object to replicate. However, the function `create_autospec` impleemnts a more in deep replication.
-This same feature is available when doing `patch`. There is a keyword only argument called `autospec`
-where we can use either `True` to have same specifications as the object being replaced or we can pass another object.
+Important note: It is not recommended to use plain Mock() objects to replace an existing
+one. If we do, Mock will dynamically "create" any attribute that our function to test
+might access. Therefore, it is not realistic, as Mock will not raise an exception but
+the real object might do it. To solve this issue, it is recommended using the keyword
+argument "spec" that will create our mock object with same attributes as the object
+to replicate. However, the function `create_autospec` implemnts a more in deep
+replication. This same feature is available when doing `patch`. There is a keyword
+only argument called `autospec` where we can use either `True` to have same
+specifications as the object being replaced or we can pass another object. It also
+admits the keyword argument `instance=True/False`. It indicates whether if it instantiates
+an object or the class itself.
+
+For more information read: https://blog.thea.codes/my-python-testing-style-guide/
 
 ### Mocking specific objects
 

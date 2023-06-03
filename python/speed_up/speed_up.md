@@ -93,12 +93,13 @@ if __name__ == '__main__':
 Vectorize speeds up the algorithms by using Single Instruction Multiple Data (SIMD).
 These are special instructions from the CPU that allow to apply the same instruction
 to a "vector" of data instead to a individual values. Libraries such as `pandas`
-and `numpy` implement their own vectorized instructions. Therefore, it is always
-recommended to use all functions that operate over a set of data instead of using
-for loops. These can come from basic operators such as `>` or `+`, or from specific
-methods such as `np.sqrt`. For `numpy`. these are also called `universal functions`
-or `ufunc`. They basically perform operations in an element wise fashion but to a
-group of data. However, you can also create yours (explained in next section.)
+and `numpy` implement C-based code and their own vectorized instructions. Therefore,
+it is always recommended to use all functions that operate over a set of data instead
+of using for loops. These can come from basic operators such as `>` or `+`, or from
+specific methods such as `np.sqrt`. For `numpy`. these are also
+called `universal functions` or `ufunc`. They basically perform operations in an
+element wise fashion but to a group of data. However, you can also create yours
+(explained in next section.)
 
 ## Numba
 
@@ -106,8 +107,22 @@ group of data. However, you can also create yours (explained in next section.)
 quite well with raw for loops and numpy operations. It mainly performs two ideas to
 speed up the code:
 
-- Just In Time (JIT) compilation: To pre-compile your function and cache its calls.
-- Vectorize: To create your own universal functions.
+- Just In Time (JIT) compilation with `@jit`: To pre-compile your function into machine
+  code and cache its calls. Due to thisc ompilation part, the compiler can apply multiple
+  optimizations. Differently to `numpy`, this one does not compile to C first, but
+  directly to machine code. 
+- Vectorize (`@vectorize` or `@guvectorize`): To create your own universal functions.
+  These functions use special vectorize-based instructions from the CPU.
+- Stencil (with `@stencil` decorator): Common computational pattern in which array
+  elements are updated according to some fixed pattern called the stencil kernel.
+  This is typical for image processing algorithms, where the local value of the pixel
+  is updated according to the value of neighbour pixels. This decorator is not explained
+  in this guide.
+
+Side note about how Python works: When you launch the code, `Python` generates
+pre-compiled bytecode (`.pyc`) files that the interpreter can understand.
+However, this pre-compiled code, due to the dynamism of Python, cannot be
+optimized. This is way it is so slow.
 
 ### Just in time compilation
 
@@ -135,6 +150,7 @@ Interesting flags that you can add:
  - `parallel`: It will analyze the code and parallelize (multithread) if possible.
     You can also use  `prange` instead of `range` to explicitely indicate parallel loops.
  - `fastmath`: Sacrifice accuracy in exchange of speed
+ - `cache`: Cache the input-output relation of the compiled function.
 
  When using `nopython` mode, it will try to parse all code, meaning that no python
  interpreter will be used. If there is something it cannot parse, it will raise an
@@ -177,11 +193,11 @@ def vec_operation(a: float, b: float, c: float) -> float:
 ```
 
 As you can see in the example above, you can specify the signature of the function in
-the decorator or not. If it is not done, `numba` will perform lazy compilation. This
-means that when the code is running, it will perform the vectorization depending on
-the type of data that it receives and it will cache the vectorized function for its
-later use. If we know the function signature, it is recommended to use it. Then,
-the function can be called as:
+the decorator or not. If it is not done, `numba` will create a "dynamic universal
+function". This means that when the code is running, it will perform the vectorization
+depending on the type of data that it receives and it will cache the vectorized function
+for its later use (lazy compilation). If we know the function signature, it is
+recommended to use it. Then, the function can be called as:
 
 ```python
 # being all A, B, C and D arrays
@@ -193,7 +209,10 @@ a wrapper around it.
 
 #### Reduced vectorized functions
 
-`numpy` allows to apply specific functions to any axis we want. Let's say for `np.mean`. You can either compute the mean for all values or you ca specify the axis like `np.mean(arr, axis=0)`. These are called reduced vectorized functions and can be implemented with `numba` as well. This is done with `identity="reorderable`:
+`numpy` allows to apply specific functions to any axis we want. Let's say for `np.mean`.
+You can either compute the mean for all values or you ca specify the axis
+like `np.mean(arr, axis=0)`. These are called reduced vectorized functions and can be
+implemented with `numba` as well. This is done with `identity="reorderable`:
 
 ```python
 @vectorize(
@@ -219,37 +238,47 @@ This one is more complex but gives more possibilities. Among them, returning mul
 values. However, these do not work in a element wise fashion way, but in a matrix way.
 
 ```python
-from numba import guvectorize, float64
-import numpy as np
+from numba import guvectorize, int64
 
-ones = np.ones((3, 3))
-twos = ones * 2
-
-@guvectorize(
-    [(float64[:], float64[:], float64[:], float64[:])],
-    "(n),(n)->(n),(n)",
-    nopython=True)
-def add_guvectorize(a, b, c, d):
-    for i in range(len(a)):
-        c[i] = a[i] + b[i]
-        d[i] = a[i] + c[i]
-threes, fours = add_guvectorize(ones, twos)
+@guvectorize([(int64[:], int64, int64[:])], '(n),()->(n)', nopython=True)
+def g(x, y, res):
+    for i in range(x.shape[0]):
+        res[i] = x[i] + y
 ```
 
-In the eexample above, there are different things to take into account.
+In the example above, there are different things to take into account.
 - In the decorator itself, the signature is specified.
-- The second element indicates the data transfer. This is which parameters work
-  as `input` and which ones as `output`. In the example we can see that the first 2
-  variables are inputs and the 2 last variables are outputs.
+- The second element indicates the data flow. It indicates that the funciton takes a
+  n-element array and a scalar (denoted by `()`) and the results are stored in a
+  n-element array.
 - Therefore, in order to store the results, we need to pass the array that will
   store them and modify them inside the generalized universal function.
+- We can also pass `nopython` flag for further optimization.
 
+The nice thing is that it will automatically dispatch over more complicated inputs,
+depending on their shapes:
+
+```python
+>>> a = np.arange(6).reshape(2, 3)
+>>> a
+array([[0, 1, 2],
+       [3, 4, 5]])
+>>> g(a, 10)
+array([[10, 11, 12],
+       [13, 14, 15]])
+>>> g(a, np.array([10, 20]))
+array([[10, 11, 12],
+       [23, 24, 25]])
+```
 
 ### GPU and cuda
 
 There are two main approaches:
-- `@vectorize` with flag `taget="cuda"`: Easier to implement. You dont need to manage memory, threads, blocks, syncornization or any other hardware related stuff. `numba` infers all of it for you.
-- `@cuda.jit` this one is much harder, having to manage all the things mentioned before. However, the user has better control. This one will not be explained in this guide.
+- `@vectorize` with flag `taget="cuda"`: Easier to implement. You dont need to manage
+  memory, threads, blocks, syncornization or any other hardware related
+  stuff. `numba` infers all of it for you.
+- `@cuda.jit` this one is much harder, having to manage all the things mentioned before.
+  However, the user has better control. This one will not be explained in this guide.
 
 #### @vectorize with target cuda
 Important note: Check that cuda is properly set up in the computer
@@ -283,8 +312,9 @@ Usually, this is the speed up order, from low to high:
        compensates memory transfers)
 
 ## Cupy
-Library that is meant to use `cuda` (NVIDIA API) for `numpy` and `scipy`. This library literally
-implements a mirrored functions coming from these modules. Example:
+
+Library that is meant to use `cuda` (NVIDIA API) for `numpy` and `scipy`. This library
+literally implements mirrored functions coming from these modules. Example:
 
 ```python
 import numpy as np
@@ -299,17 +329,10 @@ x_gpu = cp.array([1, 2, 3])
 l2_gpu = cp.linalg.norm(x_gpu)
 ```
 
-About how memory is transfered, here is a more detailed example:
+About how memory is transfered, creating an array with `cp` already allocates it in GPU
+memory. There are two main methods to transfer this data from or to CPU.
 
 ```python
-import cupy as cp
-
-# Allocates mmemory in CPU
-cpu_array = cp.arange(10)
-# Allocates memory in GPU
-gpu_array = cp.array(cpu_array)
-# Perform operation (result stored in GPU)
-gpu_result = cp.sin(gpu_array)
-# Copy the result back to the CPU memory
-cpu_result = gpu_result.get()
+cp.asarray(np_arr_in_cpu)  # It will trasnfer CPU to GPU
+cp.asnumpy(cp_arr_in_gpu)  # It will transger GPU to CPU
 ```
