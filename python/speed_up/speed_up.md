@@ -149,6 +149,7 @@ Interesting flags that you can add:
     is raised. Recommended to alwyas have it set to `True`.
  - `parallel`: It will analyze the code and parallelize (multithread) if possible.
     You can also use  `prange` instead of `range` to explicitely indicate parallel loops.
+    Recommended its use when data is more than 1KB at least.
  - `fastmath`: Sacrifice accuracy in exchange of speed
  - `cache`: Cache the input-output relation of the compiled function.
 
@@ -248,15 +249,34 @@ def g(x, y, res):
 
 In the example above, there are different things to take into account.
 - In the decorator itself, the signature is specified.
-- The second element indicates the data flow. It indicates that the funciton takes a
-  n-element array and a scalar (denoted by `()`) and the results are stored in a
-  n-element array.
-- Therefore, in order to store the results, we need to pass the array that will
-  store them and modify them inside the generalized universal function.
+- The second element indicates the data flow. Everything before the arrow means input.
+  After it, outputs. All of them can be either a *1D ARRAY* with `n` elements (or any
+  letter) with `(n)` or they can be a scalar `()`.
+- Therefore, `numba` will manage the creation of the output arrays. This have a few
+  consequences:
+  - Outputs ALWAYS have to be of the type `xxx[:]` on the first part of the signature.
+  - For the second part, depending on the dimensions of the output, it can be
+    either `()` (scalar) or `(n)` (1D array). About this one, there are two main
+    restrictions:
+      - You cannot use integers here
+      - Due to the generalization nature, every letter that appears in the right side,
+        it has to be on the left side. More comments on this are done later.
+  - When calling this function, we will do as `g(a,b)`. The third element (output) is
+    not passed.
 - We can also pass `nopython` flag for further optimization.
 
-The nice thing is that it will automatically dispatch over more complicated inputs,
-depending on their shapes:
+However, the explanation about `()` or `(n)` is more complex. In reality, the decorator
+can work with dimensions higher than 1D. It is like if the decorator flattens the given
+input arrays to a 1D array, apply the function, and then reshapes them back to its
+original shape when it is returned. As an example, if we have `(n)->()`, it can mean:
+
+- If we pass a 1D array, the returned value will be a scalar
+- If we pass a 2D array, the returned value will be a 1D array
+- And so on
+
+But if we have `(n)->(n)`, the output will always be same dimension as the input.
+
+With the code snippet above:
 
 ```python
 >>> a = np.arange(6).reshape(2, 3)
@@ -271,14 +291,125 @@ array([[10, 11, 12],
        [23, 24, 25]])
 ```
 
+Conclusion: In order to avoid confusion when writting your function, think as if you only
+work with either scalars or 1D arrays.
+
+##### More complex cases
+
+As I said before, there are two main restrictions when writting the second part of the
+decorator:
+
+- All symbols appearing at right, must be at left
+- All symbols must be letters, no numbers.
+
+So what if I have a forward kinematic function that works with 5 joint values (or in
+general, an array Nx5) and returns 3 points (Nx3)? How do we write the output?
+
+```python
+# We cannot do this, as we cannot use constants
+@guvectorize([(float64[:], float64[:])], '(n)->(3)', nopython=True)
+# We cannot do this, as `m` symbol is not defined on the left side
+@guvectorize([(float64[:], float64[:])], '(n)->(m)', nopython=True)
+```
+
+How can it be solved?
+
+The solution so far given can be found [HERE](https://github.com/numba/numba/issues/2797).
+This is creating and passing a dummy array to indicate dimensions. This would be:
+
+```python
+@guvectorize([(float64[:], float64[:], float64[:])], "(n),(m) -> (m)")
+def fk(ths: FloatArray, dummy: FloatArray, res: FloatArray) -> None:
+  # Do nothing with `dummy`
+  ...
+```
+
+As you can see in the example, we are not breaking any rules. Therefore, to call the
+function we need to:
+
+```python
+# Suppose we have `arr`. This should be shape (N, 5).
+N = len(arr)
+dummy = np.zeros((N, 3), dtype=np.float64)
+fk(arr, dummy)
+```
+
+By doing this and passing dummy, we are indicating to the generalized vectorized function
+what's the shape of the output array (which will be same rows as the first array passed
+but with 3 columns). This approach takes some extra time and memory to allocate that dummy
+array, but it is still much faster than any other option.
+
+##### More practical examples
+
+Function `g()` receives an uninitialized array through the `res` parameter. Assigning
+a new value to it doesn't modify the original array passed to the function. Note how
+in the example below, `res` is `float64[:]` but it is denoted as an scalar in the
+second element of the string. Note we since we do not know how many elements our function
+will have (just `n`), we need to apply functions that apply to all of our 1D input array.
+These are opperations that already work with vectors of data (`numpy`-based) like in
+this example, or `for` loops like in the next example.
+
+```python
+@guvectorize([(float64[:], float64[:], float64[:])], '(n),(n)->()')
+def g(x, y, res):
+    res[:] = np.sum(x * y)
+```
+
+Source: https://stackoverflow.com/questions/66608336/weird-behavior-of-numba-guvectorize
+
+Another example is where we can have multiple output arrays. Be aware how, since we do
+not know hoy many elements we will have, we have to use a `for` loop to iterate over
+all `n` elements. Next example will be different.
+
+```python
+@guvectorize(
+    [(float64[:], float64[:], float64[:], float64[:])],
+    "(n),(n)->(n),(n)",
+    nopython=True)
+def add_guvectorize(a, b, c, d):
+    for i in range(len(a)):
+        c[i] = a[i] + b[i]
+        d[i] = a[i] + c[i]
+```
+
+Source: https://stackoverflow.com/questions/30417465/get-multiple-return-values-from-numba-vectorize
+
+About the example analyzed in the section above (forward kinematics equation with 5 input
+values and 3D point as output). In this example, although the first input array is `n`
+elements according to the signature, we know that inside our function, it will be a
+flattened 1D array with 5 elements. Since in our case is ALWAYS going to be 5, instead of
+iterating with a for loop over all elements as we did in the examples above, we can just
+grab/index the first five elements and implement the algorithm with these only values:
+
+```python
+@guvectorize([(float64[:], float64[:], float64[:])], "(n),(m) -> (m)", target="parallel", nopython=True)
+def forward_kinematics(angle: FloatArray, dummy: FloatArray, res: FloatArray) -> None:
+    th1 = ths[0]
+    th2 = ths[1]
+    th3 = ths[2]
+    th4 = ths[3]
+
+    # Here you perform calculations and store results in res[0], res[1] and res[2]
+
+dummy = np.zeros((len(joints), 3), dtype=np.float64)
+forwad_kinematics(joints, dummy)
+```
+
+You can read more information about the `dummy` array above.
+
+
+
 ### GPU and cuda
 
 There are two main approaches:
-- `@vectorize` with flag `taget="cuda"`: Easier to implement. You dont need to manage
+- `@vectorize` with flag `target="cuda"`: Easier to implement. You dont need to manage
   memory, threads, blocks, syncornization or any other hardware related
   stuff. `numba` infers all of it for you.
 - `@cuda.jit` this one is much harder, having to manage all the things mentioned before.
   However, the user has better control. This one will not be explained in this guide.
+
+Be aware that when working with CUDA, you can only do a reduced number of things. For
+example, you cannot build a list. You have to think from the point of view of C and arrays.
 
 #### @vectorize with target cuda
 Important note: Check that cuda is properly set up in the computer
@@ -307,9 +438,15 @@ Usually, this is the speed up order, from low to high:
     2. Numpy vectorized operations
     3. Numba jit with pre-compiled function
     4. Numba vectorization.
+    5. Numba guvectorization (if possible to implement)
     5. Numba vectorization with `target=parallel` (if heavy enough)
     6. Numba with cuda vectorization `target=cuda` (if operation is heavy enough that
        compensates memory transfers)
+
+Official numba website recomends using `target=cpu` for data less than 1KB.
+`target=parallel` for data less than 1MB and `target=cuda` for greater than
+1MB and with heavy computation. However, it depends a lot on the use case,
+so it is better to experiment.
 
 ## Cupy
 
