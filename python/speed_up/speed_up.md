@@ -237,6 +237,7 @@ numba_add.reduce(a, axis=1)
 
 This one is more complex but gives more possibilities. Among them, returning multiple
 values. However, these do not work in a element wise fashion way, but in a matrix way.
+You can think of `@vectorize` as a specific and limited case of `@guvectorize`.
 
 ```python
 from numba import guvectorize, int64
