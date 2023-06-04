@@ -190,6 +190,7 @@ Numba applies the following techniques when `parallel` is set to `True`:
   This is because when working with big amounts of data stored in RAM, CPU needs to
   transfer them to its cache in order to perform operations with them. Because of this,
   there might be long waiting times that can be better exploited with multithreading.
+  `numba` divides all the code into equal-sized chunks that each thread will manage.
 
 How you can profile what's happening?
 
@@ -207,7 +208,8 @@ This method will print the optimizations done.
 
 When you need to execute specific functions, you might reach a point in which you need to
 perform for loops again. If you want to avoid this, this section explains how to create
-custom vectorized operations. There are two types of vectorization:
+custom vectorized operations. In this case,  `numba` creates these functions to be used as
+`numpy ufuncs` objects. There are two types of vectorizations:
 
 - Those which operate on scalars, these are “universal functions” or ufuncs: Simpler to
   set up but worse flow control.
