@@ -104,8 +104,8 @@ element wise fashion but to a group of data. However, you can also create yours
 ## Numba
 
 `numba` is an optimization based library that performs a huge speeds up. It works
-quite well with raw for loops and numpy operations. It mainly performs two ideas to
-speed up the code:
+quite well with raw for loops and `numpy` operations (therefore not `math` recommended).
+It mainly performs two ideas to speed up the code:
 
 - Just In Time (JIT) compilation with `@jit`: To pre-compile your function into machine
   code and cache its calls. Due to thisc ompilation part, the compiler can apply multiple
@@ -120,9 +120,9 @@ speed up the code:
   in this guide.
 
 Side note about how Python works: When you launch the code, `Python` generates
-pre-compiled bytecode (`.pyc`) files that the interpreter can understand.
+pre-compiled bytecode (`.pyc`) files that the interpreter can understand line by line.
 However, this pre-compiled code, due to the dynamism of Python, cannot be
-optimized. This is way it is so slow.
+optimized. This is why it is so slow.
 
 ### Just in time compilation
 
