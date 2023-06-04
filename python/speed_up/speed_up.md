@@ -103,12 +103,12 @@ element wise fashion but to a group of data. However, you can also create yours
 
 ## Numba
 
-`numba` is an optimization based library that performs a huge speeds up. It works
+`numba` is an optimization based library that performs huge speeds up. It works
 quite well with raw for loops and `numpy` operations (therefore not `math` recommended).
 It mainly performs two ideas to speed up the code:
 
 - Just In Time (JIT) compilation with `@jit`: To pre-compile your function into machine
-  code and cache its calls. Due to thisc ompilation part, the compiler can apply multiple
+  code and cache its calls. Due to this compilation part, the compiler can apply multiple
   optimizations. Differently to `numpy`, this one does not compile to C first, but
   directly to machine code. 
 - Vectorize (`@vectorize` or `@guvectorize`): To create your own universal functions.
@@ -119,10 +119,16 @@ It mainly performs two ideas to speed up the code:
   is updated according to the value of neighbour pixels. This decorator is not explained
   in this guide.
 
-Side note about how Python works: When you launch the code, `Python` generates
-pre-compiled bytecode (`.pyc`) files that the interpreter can understand line by line.
-However, this pre-compiled code, due to the dynamism of Python, cannot be
-optimized. This is why it is so slow.
+How this is achieved?
+
+In pure Python, When you launch the code, `Python` generates pre-compiled bytecode
+(`.pyc`) files that the interpreter can understand line by line. However, this
+pre-compiled code, due to the dynamism of Python, cannot be optimized. This is
+why it is so slow.
+
+On the opposite side, `numba` translates the code so that it can be used as input to
+`LLVM` compiler. Then, this one performs the optimizations that any compiler can make
+(loop fusion, better memory mamangement, inlining...)
 
 ### Just in time compilation
 
@@ -151,7 +157,8 @@ Interesting flags that you can add:
     You can also use  `prange` instead of `range` to explicitely indicate parallel loops.
     Recommended its use when data is more than 1KB at least.
  - `fastmath`: Sacrifice accuracy in exchange of speed
- - `cache`: Cache the input-output relation of the compiled function.
+ - `cache`: Cache the compiled function into a file to avoid re-compilating it whenever
+   the program is launched for the first time.
 
  When using `nopython` mode, it will try to parse all code, meaning that no python
  interpreter will be used. If there is something it cannot parse, it will raise an
@@ -167,7 +174,7 @@ custom vectorized operations. There are two types of vectorization:
 - Those which operate on scalars, these are “universal functions” or ufuncs: Simpler to
   set up but worse flow control.
 - Those which operate on higher dimensional arrays and scalars, these are “generalized
-  universal functions” or gufuncs (@guvectorize below). Harder to set up but more
+  universal functions” or gufuncs (`@guvectorize` below). Harder to set up but more
   possibilities.
 
 Compared to `jit`, first calls to vectorized functions do not take extra time. All
