@@ -105,7 +105,7 @@ element wise fashion but to a group of data. However, you can also create yours
 
 `numba` is an optimization based library that performs huge speeds up. It works
 quite well with raw for loops and `numpy` operations (therefore not `math` recommended).
-It mainly performs two ideas to speed up the code:
+It mainly performs these ideas to speed up the code:
 
 - Just In Time (JIT) compilation with `@jit`: To pre-compile your function into machine
   code and cache its calls. Due to this compilation part, the compiler can apply multiple
@@ -118,6 +118,8 @@ It mainly performs two ideas to speed up the code:
   This is typical for image processing algorithms, where the local value of the pixel
   is updated according to the value of neighbour pixels. This decorator is not explained
   in this guide.
+- Overload: You can replace any function implemented by Python built-in or 3rd party
+  libraries with your own numba-optimized function. Not explained in this guide.
 
 How this is achieved?
 
@@ -126,9 +128,9 @@ In pure Python, When you launch the code, `Python` generates pre-compiled byteco
 pre-compiled code, due to the dynamism of Python, cannot be optimized. This is
 why it is so slow.
 
-On the opposite side, `numba` translates the code so that it can be used as input to
-`LLVM` compiler. Then, this one performs the optimizations that any compiler can make
-(loop fusion, better memory mamangement, inlining...)
+On the opposite side, `numba` translates the Python bytecode (`.pyc`) so that it can be
+used as input to `LLVM` compiler. Then, this one performs the optimizations that any
+compiler can make (loop fusion, better memory mamangement, inlining...)
 
 ### Just in time compilation
 
@@ -154,8 +156,13 @@ Interesting flags that you can add:
  - `nopython`: Forces all the code to be compiled. If there is a problem, a exception
     is raised. Recommended to alwyas have it set to `True`.
  - `parallel`: It will analyze the code and parallelize (multithread) if possible.
-    You can also use  `prange` instead of `range` to explicitely indicate parallel loops.
-    Recommended its use when data is more than 1KB at least.
+    You can also use `prange` instead of `range` to explicitely indicate parallel loops.
+    Recommended its use when data is more than 1KB at least. Why this can be quicker?
+    This is because when working with big amounts of data stored in RAM, CPU needs to
+    transfer them to its cache in order to perform operations with them. Because of this,
+    there might be long waiting times. This flag will allow to use multiple threads so
+    that the CPU is performing computations on other data while the memory transfer is
+    being done.
  - `fastmath`: Sacrifice accuracy in exchange of speed
  - `cache`: Cache the compiled function into a file to avoid re-compilating it whenever
    the program is launched for the first time.
@@ -182,8 +189,11 @@ decorators explained here also admit the same ones explained with `jit`.
 
 #### @vectorize
 
-The idea is that you create a function that admits one or multiple scalars and returns
-ONLY one. Then, by adding the decorator, your function will admit whole vectors.
+The idea of this decorator is applying the same instruction to each element in any
+given array. Therefore, the function is defined element-wise (only scalars).
+Although the function works with scalars, you can still feed 1D, 2D, 3D arrays...
+
+Its main limitation is that its main function can only return one single value.
 
 ```python
 from numba import float32, float64, vectorize
@@ -242,9 +252,14 @@ numba_add.reduce(a, axis=1)
 
 #### @guvectorize
 
-This one is more complex but gives more possibilities. Among them, returning multiple
-values. However, these do not work in a element wise fashion way, but in a matrix way.
-You can think of `@vectorize` as a specific and limited case of `@guvectorize`.
+While `@vectorize` applies the same instruction to each element in an array,
+`@guvectorize` allows you to apply the same instruction to a set of vectors (or bigger
+dimensiones). Therefore, instead of being element-wise, it is matrix-wise. This one is
+more complex but gives more possibilities. You can think of `@vectorize` as a specific
+and limited case of `@guvectorize`.
+
+Opposite as `@vectorize`, which can only return one single value, this one allows to
+return multiple ones.
 
 ```python
 from numba import guvectorize, int64
@@ -256,16 +271,15 @@ def g(x, y, res):
 ```
 
 In the example above, there are different things to take into account.
-- In the decorator itself, the signature is specified.
-- The second element indicates the data flow. Everything before the arrow means input.
-  After it, outputs. All of them can be either a *1D ARRAY* with `n` elements (or any
-  letter) with `(n)` or they can be a scalar `()`.
+- In the decorator itself, the signature is specified. `int64` would mean a scalar,
+  `int64[:]` would mean a 1D array, `int64[:,:]` would mean a 2D array...
+- The second element indicates the data flow and shapes. Everything before the arrow
+  means input. After it, outputs. For scalars, you just write `()`. For 1D array,
+  you write `(n)`. For 2D array, you write `(m,n)`... Note that any symbol can be used
+  to denote the dimensions. They do not admit any integers as symbols.
 - Therefore, `numba` will manage the creation of the output arrays. This have a few
   consequences:
-  - Outputs ALWAYS have to be of the type `xxx[:]` on the first part of the signature.
-  - For the second part, depending on the dimensions of the output, it can be
-    either `()` (scalar) or `(n)` (1D array). About this one, there are two main
-    restrictions:
+  - Outputs ALWAYS have to be an array. Meaning that it has to be at least 1D.
       - You cannot use integers here
       - Due to the generalization nature, every letter that appears in the right side,
         it has to be on the left side. More comments on this are done later.
@@ -283,6 +297,8 @@ original shape when it is returned. As an example, if we have `(n)->()`, it can 
 - And so on
 
 But if we have `(n)->(n)`, the output will always be same dimension as the input.
+Therefore, as a main rule, we need to write our algorithms with less dimensions as
+possible.
 
 With the code snippet above:
 
@@ -338,7 +354,8 @@ function we need to:
 ```python
 # Suppose we have `arr`. This should be shape (N, 5).
 N = len(arr)
-dummy = np.zeros((N, 3), dtype=np.float64)
+# np.empty allocates memory but does not set the value. It is the quickest one.
+dummy = np.empty((N, 3), dtype=np.float64)
 fk(arr, dummy)
 ```
 
@@ -404,7 +421,6 @@ forwad_kinematics(joints, dummy)
 ```
 
 You can read more information about the `dummy` array above.
-
 
 
 ### GPU and cuda
@@ -481,3 +497,11 @@ memory. There are two main methods to transfer this data from or to CPU.
 cp.asarray(np_arr_in_cpu)  # It will trasnfer CPU to GPU
 cp.asnumpy(cp_arr_in_gpu)  # It will transger GPU to CPU
 ```
+
+## Dask
+
+As a brief summary, this library allows you to work with extremely huge data. It
+implements mirrored `numpy`, `pandas` or `list` based functions that can
+overflow the memory. It also applies batch-optimization, which means that the library
+will detect which operations can be ran in parallel. However, in order to be more
+efficient, it needs to work with millions of values.
