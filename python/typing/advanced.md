@@ -185,6 +185,13 @@ reveal_type(a)  # str
 foo('x')    # Type check error: incompatible type "str"; expected "int"
 ```
 
+### typing.override
+
+It is a decorator attached to those methods that override from the original class.
+This way we are telling the mypy that there is a link between them. This way, if
+we rename the method on the superclass, `mypy` will raise an error saying that
+the overridden method from the subclass could not be found in the superclass.
+
 ### typing.ParamSpec
 
 Remember that you can use `ParamSpec` to indicate that the arguments that one high
