@@ -155,22 +155,53 @@ Interesting flags that you can add:
 
  - `nopython`: Forces all the code to be compiled. If there is a problem, a exception
     is raised. Recommended to alwyas have it set to `True`.
- - `parallel`: It will analyze the code and parallelize (multithread) if possible.
+ - `parallel`: It will analyze the code, optimize and parallelize (multithread) if
+    possible.
     You can also use `prange` instead of `range` to explicitely indicate parallel loops.
-    Recommended its use when data is more than 1KB at least. Why this can be quicker?
-    This is because when working with big amounts of data stored in RAM, CPU needs to
-    transfer them to its cache in order to perform operations with them. Because of this,
-    there might be long waiting times. This flag will allow to use multiple threads so
-    that the CPU is performing computations on other data while the memory transfer is
-    being done.
+    Recommended its use when data is more than 1KB at least. More information explained
+    in next section.
  - `fastmath`: Sacrifice accuracy in exchange of speed
  - `cache`: Cache the compiled function into a file to avoid re-compilating it whenever
    the program is launched for the first time.
 
- When using `nopython` mode, it will try to parse all code, meaning that no python
- interpreter will be used. If there is something it cannot parse, it will raise an
- exception instead of falling in `object` mode. This decorator does not need any type hints.
+When using `nopython` mode, it will try to parse all code, meaning that no python
+interpreter will be used. If there is something it cannot parse, it will raise an
+exception instead of falling in `object` mode. This decorator does not need any type
+hints.
 
+#### Auto-parallelizing code
+
+How is made quicker?
+
+Numba applies the following techniques when `parallel` is set to `True`:
+
+- Loop based optimizations for multithreading: 
+  - Loop fusion: Loop with equivalent bounds are merged. This is not only for Python
+    for loops, but also for any method that is translated to a for loop. This can be
+    declaring a 2 numpy arrays with same size for example. It improves data locality
+    and thus minimizes data access times.
+  - Loop serialization: Whenever there are two nested for loops, first one is set
+    parallel and innermost series.
+  - Loop invariant code motion: Move all the code possible outside the for loop (only the
+    one that will not affect the code)
+  - Allocation hoisting: Complex numpy based optimization.
+- Multithreading: It helps a lot for IO-boundes opperations. These can be operations
+  where much data is moved from RAM to the cache of the CPU to perform any operation.
+  This is because when working with big amounts of data stored in RAM, CPU needs to
+  transfer them to its cache in order to perform operations with them. Because of this,
+  there might be long waiting times that can be better exploited with multithreading.
+
+How you can profile what's happening?
+
+This can be done by only when decorator `@jit` is used (not with `@vectorize`).
+After the function is called:
+
+```python
+my_func.parallel_diagnostics(level=4)
+# Verbosity goes from 1 (lowest) to 4 (highest)
+```
+
+This method will print the optimizations done.
 
 ### Vectorize
 
