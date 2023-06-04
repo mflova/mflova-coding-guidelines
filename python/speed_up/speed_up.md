@@ -112,7 +112,9 @@ It mainly performs these ideas to speed up the code:
   optimizations. Differently to `numpy`, this one does not compile to C first, but
   directly to machine code. 
 - Vectorize (`@vectorize` or `@guvectorize`): To create your own universal functions.
-  These functions use special vectorize-based instructions from the CPU.
+  These functions use special vectorize-based instructions from the CPU. Numba provides
+  this tool to easily create numpy-based universal functions. Compatible with
+  multithreading. Therefore, no extra compilation is done here.
 - Stencil (with `@stencil` decorator): Common computational pattern in which array
   elements are updated according to some fixed pattern called the stencil kernel.
   This is typical for image processing algorithms, where the local value of the pixel
