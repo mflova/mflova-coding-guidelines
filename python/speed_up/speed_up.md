@@ -40,18 +40,22 @@ These are the main differences:
 
 Multithreading:
 
-  - Single core
-  - Shared memory, no needed to copy anything to a different memory
-  - Concurrency based. This means that it is ideal for those algorithms with low
-    computation but long waiting times (waiting for website request for example)
+- Single core
+- Shared memory, no needed to copy anything to a different memory
+- Concurrency based. This means that it is ideal for those algorithms with low
+  computation but long waiting times (waiting for website request for example)
 
 Multiprocessing:
 
-  - Multi core
-  - Non shared memory. Therefore, the process of copying data into different
-    memory zones can be slower.
-  - Multi process based. This means it is ideal for high computation load.
+- Multi core
+- Non shared memory. Therefore, the process of copying data into different
+  memory zones can be slower.
+- Multi process based. This means it is ideal for high computation load.
 
+Be aware that when working with big arrays, these values need to be copied from RAM
+memory to the CPU cache in order to perform operations on them. Therefore, it is not
+always obvious which ones are CPU-bounded problems (multiprocessing better) or
+IO-bounded problems (multithreading better)
 
 This library uses `Pool` objects to manage all resources. From it, the `executor` derives.
 Important note: These features need to be called from a script with `if main`. Otherwise
