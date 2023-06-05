@@ -123,7 +123,7 @@ Improves much more the diff in the assertions for built-in Python types
 
 [Link](https://numba.pydata.org/)
 
-More in `speed-up-md`
+More in `speed-up.md`
 
 Perform just in time compilation for specific functions. This means that the code is
 no longer fed into the Python interpreter, but compiled once and cached whenever it
@@ -138,37 +138,23 @@ def my_func():
     ...
 ```
 
-Interesting flags:
- - `nopython`: Forces all the code to be compiled. If there is a problem, a exception
-    is raised. Recommended to alwyas have it set to `True`
- - `parallel`: It will analyze the code and parallelize (multithread) if possible.
-    You can also use  `prange` to explicitely indicate parallel loops.
- - `fastmath`: Sacrifice accuracy in exchange of speed
-
-Note this module optionally works with CUDA.
-
-Another decorator is `vectorize`. It allows to vectorize a function. THis is "grouping"
-input data as vectors in order to use specific vector-based instructions inside the CPU.
-It requires defining the signature of the function like in the example below. This
-decorator can be also combined with `nopython` for greater improvement.
-
-```python
-from numba import vectorize, float64
-
-@vectorize([float64(float64, float64)])
-def f(x, y):
-    return x + y
-```
-
-Vectorize tends to be much quicker than `jit`, as it provides more information to the
-compiler.
+Also useful to vectorize your operations.
 
 ## cupy
 
 [Link](https://cupy.dev/)
 
-More in `speed-up-md`
+More in `speed-up.md`
 
 This library brings the GPU usage into Python. It implements has equivalent numpy and scipy
 libraries but to work with GPU. The problem is that it needs to have CUDA and therefore a
 NVIDIA GPU.
+
+
+## cuDF
+
+[Link](https://docs.rapids.ai/api/cudf/stable/)
+
+More in `speed-up.md`
+
+Library similar to pandas that operates in cuda environment (and thus GPU processing)

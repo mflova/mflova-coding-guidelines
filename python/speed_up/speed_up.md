@@ -4,13 +4,34 @@ This guide contains everything related to making the code quicker.
 
 ## Making the algorithm more efficient
 
-Analyze the time complexity of the algorithm and tackle the weak points. Not much attention
-is given here as this is supposed to be known.
+Analyze the time complexity of the algorithm and tackle the weak points. Not much
+attention is given here as this is supposed to be known.
 
 ### Pandas
 
 Specific tips for `pandas`:
- - Always avoid `iterrows`. Use `itertuples` instead.
+ - Always avoid `iterrows`. This one creates a `Seroes` object for each row and has huge
+   overhead. Use `itertuples` instead.
+ - Make sure that when saving a pandas, it is done by preserving the `dtype` of each
+   column. Otherwise, infering types might be slow the more rows you have.
+ - In order to select indeces, do not iterate over rows and take advantage of
+   vectorized-based operations wheere you can do like:
+
+    ```python
+    df[df["age"]> 20]  # This will take only those rows whose age is higher than 20
+    ```
+
+  - If you want to speed up `.apply` method when applying a function to all data, you can
+    install `swifter`. This package implements optimized techniques (like parallel
+    processing) coming from `dask` and it will apply always the quickest one. This way,
+    you would apply the method like this:
+
+    ```python
+    df.swifter.apply(my_func)
+    ```
+
+  - Using `cuDF` (GPU) for processing. See below
+
 
 ## Concurrent futures
 
@@ -19,17 +40,17 @@ These are the main differences:
 
 Multithreading:
 
-    - Single core
-    - Shared memory, no needed to copy anything to a different memory
-    - Concurrency based. This means that it is ideal for those algorithms with low
-      computation but long waiting times (waiting for website request for example)
+  - Single core
+  - Shared memory, no needed to copy anything to a different memory
+  - Concurrency based. This means that it is ideal for those algorithms with low
+    computation but long waiting times (waiting for website request for example)
 
 Multiprocessing:
 
-    - Multi core
-    - Non shared memory. Therefore, the process of copying data into different
-      memory zones can be slower.
-    - Multi process based. This means it is ideal for high computation load.
+  - Multi core
+  - Non shared memory. Therefore, the process of copying data into different
+    memory zones can be slower.
+  - Multi process based. This means it is ideal for high computation load.
 
 
 This library uses `Pool` objects to manage all resources. From it, the `executor` derives.
@@ -137,7 +158,8 @@ compiler can make (loop fusion, better memory mamangement, inlining...)
 ### Just in time compilation
 
 It pre-compiles a function on its first call and cache the results for further
-calls (lazy compilation). Therefore, first call will always be much slower. Done
+calls (lazy compilation). Therefore, first call will always be much slower
+(unless signature is provided. Explained in the end of this section). Done
 by using its main decorator:
 
 ```python
@@ -170,6 +192,10 @@ When using `nopython` mode, it will try to parse all code, meaning that no pytho
 interpreter will be used. If there is something it cannot parse, it will raise an
 exception instead of falling in `object` mode. This decorator does not need any type
 hints.
+
+If you want to remove the compilation time, you can either use `cache` flag or you can
+provide the signature of the function inside the decorator. In order to do this, check
+the examples from `@vectorize` below.
 
 #### Auto-parallelizing code
 
@@ -249,8 +275,9 @@ As you can see in the example above, you can specify the signature of the functi
 the decorator or not. If it is not done, `numba` will create a "dynamic universal
 function". This means that when the code is running, it will perform the vectorization
 depending on the type of data that it receives and it will cache the vectorized function
-for its later use (lazy compilation). If we know the function signature, it is
-recommended to use it. Then, the function can be called as:
+for its later use (lazy compilation). However, first call will take extra time. If we
+know the function signature, it is recommended to use it. Then, the function can be called
+as:
 
 ```python
 # being all A, B, C and D arrays
@@ -540,3 +567,8 @@ implements mirrored `numpy`, `pandas` or `list` based functions that can
 overflow the memory. It also applies batch-optimization, which means that the library
 will detect which operations can be ran in parallel. However, in order to be more
 efficient, it needs to work with millions of values.
+
+## cuDF
+
+This library implements similar workflow compared to pandas. Capable of using GPU to speed
+up pandas processing.
