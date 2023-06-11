@@ -87,9 +87,12 @@ interpreter will be used. If there is something it cannot parse, it will raise a
 exception instead of falling in `object` mode. This decorator does not need any type
 hints.
 
-If you want to remove the compilation time, you can either use `cache` flag or you can
-provide the signature of the function inside the decorator. In order to do this, check
-the examples from `@vectorize` below.
+If you want to remove the compilation time when first calling the function, you can either:
+
+- Use `cache` flag or you can
+- Provide the signature of the function inside the decorator. Note that the compilation
+  will happen when the module is imported, but on the first call of the function. In
+  order to do this, check the examples from `@vectorize` below.
 
 #### Auto-parallelizing code
 
@@ -390,6 +393,10 @@ There are two main approaches:
 
 Be aware that when working with CUDA, you can only do a reduced number of things. For
 example, you cannot build a list. You have to think from the point of view of C and arrays.
+
+In addition, it is recommended that every single constant defined inside the function,
+that it is properly casted with `numba.float64` or whatever format. This saves plenty
+of lines of code where static casts are done.
 
 #### @vectorize with target cuda
 Important note: Check that cuda is properly set up in the computer
