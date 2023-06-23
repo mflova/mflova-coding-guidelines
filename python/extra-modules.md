@@ -158,3 +158,9 @@ NVIDIA GPU.
 More in `speed-up.md`
 
 Library similar to pandas that operates in cuda environment (and thus GPU processing)
+
+## Gooey
+
+[Gooey](https://github.com/chriskiehl/Gooey)
+
+Turn any cli-based with `argparse` script into GUI-based by applying minimum changes.
