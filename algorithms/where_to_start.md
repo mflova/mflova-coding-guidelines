@@ -13,4 +13,4 @@ When addressing a new problem, try to think about these possible solutions:
 ## Pre-Computing
 
 - Fill array
-- Dictinary
+- Dictionary

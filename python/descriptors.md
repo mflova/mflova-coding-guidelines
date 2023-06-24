@@ -10,7 +10,7 @@ there are a few different approaches or alternatives:
   and duplicate the code.
 - Using descriptors.
 
-There are two types of desciptors:
+There are two types of descriptors:
 
 - Non data-based: Only defines `__get__`
 - Data-based: Can also define `__set__` and `__delete__`.
@@ -31,7 +31,7 @@ dictionary-like of all the instances changes so that they are not mixed.
 
 ## Non data based descriptors
 
-Following example will return a random number everytime we access `y` instance
+Following example will return a random number every time we access `y` instance
 attribute.
 
 ```python
@@ -58,7 +58,7 @@ instances, as this is defined in the class scope.
 - `instance`: Reference to the instance that called the method. In case the descriptor
   was called from the class (i.e `A.y`) `instance` will be `None`. In this cases
   the `__get__` method usually returns `self`. This is done so that you can access all
-  attributes of the descrptor from the class that contains it. FOr example by doing
+  attributes of the descriptor from the class that contains it. FOr example by doing
   something like `MyClass.x.values`, being `x` an attribute from `MyClass` that was
   assigned a descriptor and `values` the dictionary in the descriptor instance that
   contains the values.
@@ -176,7 +176,7 @@ do `instance.my_name`. These are:
     one also defines its own `__get__` method which differs from `__getattribute__`.
 
 This means that, if we have `my_name` attribute in both `__dict__` of the instance and
-as a property (descriptor), what's the preference when accessing and writting it?
+as a property (descriptor), what's the preference when accessing and writing it?
 In order to solve these conflicts, the way these conflicts are solved for both
 `__get__` and `__set__` is different depending on the descriptor protocol defined:
 

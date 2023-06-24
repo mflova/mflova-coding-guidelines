@@ -314,7 +314,7 @@ Python script crash at runtime. How to solve this issue?
   and 0 during runtime. Knowing this, I can define two different types that will
   deal with this issue.
 - Use of string literal types: These are not checked during runtime.
-  It is literally writting the type annotation as a string. See [example](https://stackoverflow.com/questions/56218842/how-do-i-use-string-literal-type-annotations-for-multiple-possible-argument-type).
+  It is literally writing the type annotation as a string. See [example](https://stackoverflow.com/questions/56218842/how-do-i-use-string-literal-type-annotations-for-multiple-possible-argument-type).
 
 Links: [Mypy type checkers vs runtime](https://mypy.readthedocs.io/en/stable/runtime_troubles.html)
 
@@ -363,7 +363,7 @@ Links:
 
 ## Narrowing types
 
-This technique consists of going from a broader tpye to a specific one. For example, from Any to int.
+This technique consists of going from a broader type to a specific one. For example, from Any to int.
 
 - `isinstance()` like in `isinstance(obj, float)` will narrow `obj` to have `float` type.
    This can be used either with `if-else` or with `assert`.

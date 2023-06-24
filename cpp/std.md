@@ -30,7 +30,7 @@ std::sort(s.begin(), s.end(), [](int a, int b)
 
 ### std::find
 
-Returns iterator poitning to end if the element could not be found.
+Returns iterator pointing to end if the element could not be found.
 
 ```cpp
 v.find(elem);
