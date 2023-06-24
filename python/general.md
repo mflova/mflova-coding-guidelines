@@ -24,7 +24,7 @@ As a useful tip, you can use `dir()` to inspect all the attributes within a clas
 In general, commas create tuples (`2, 3, 4` is an example). You can unpack these values
 by assigning them in the left hand side (LHS) like `a, b = 3, 4`. In the RHS, you
 create a tuple with two numbers, while in the LFHS you unpack them into these two values.
-This happens in the foor loop while iterating iterable objects:
+This happens in the for loop while iterating iterable objects:
 
 ```python
 for idx, value in enumerate(lst):
@@ -255,7 +255,7 @@ Decorators for methods belonging to a class:
   The first parameter must be `cls`. Therefore, using
   `return cls(1,2)` will return an instantiate of the object where the parameters 1
   and 2 were sent to the `__init__` method. Typycally used to create custom or optional
-  initalizers of the object. For example, an object that can be isntanciated from an
+  initializers of the object. For example, an object that can be isntanciated from an
   encoded string would be:
 
   ```python
@@ -297,7 +297,7 @@ Decorators for methods belonging to a class:
 
 ## Python Memory Management
 
-As a note, you can check the memoery addres with `id()`
+As a note, you can check the memory address with `id()`
 
 Variables are always pointers to the address of an object. Everything in Python is
 pointing an object so all values are passed by reference. When the reference counter of
@@ -305,7 +305,7 @@ an object is zero, the object is released from memory. When you do `a = 2`, sinc
 are immutable objects (you cannot change its internal state), if you follow with
 `a = a + 2` you will create a new `int` object with value `a + 2` and now `a` will be
 pointing to this one. However, for mutable objects like `lists`, when you `.append` and
-object, you are directly modidfying the interla state of the list (same memory address
+object, you are directly modifying the interla state of the list (same memory address
 but different content). But when you do something like `lst = lst + ['a']`, you will be
 creating again a new object and assigning `lst` the new address of that object. In
 Python, whenever there is an assignment (`=`), the right side is first evaluated and
@@ -451,7 +451,7 @@ be performed. Exception: values view when values are repeated.
 
 For `Set`, you can use `FrozenSet` for its equivalent immutable object. For `Dict` you
 can use `MappingProxyType`, which is a proxy (wrapper) around the dict implementation
-to remove its writting methods. However, take into account that this works as a `view`
+to remove its writtting methods. However, take into account that this works as a `view`
 item (immutable dynamic reference to the original dictionary). Therefore, if we modify
 the original dictionary the `MappingProxyType` will also be changed.
 
@@ -491,12 +491,12 @@ You also have generator comprehensions:
 
 ### Slots
 
-Instead of storing the instance attributes in a mutable dictionary, you can chooose to
+Instead of storing the instance attributes in a mutable dictionary, you can choose to
 store them in a more opzimied memory that avoids hashing and indexing the dictionary.
 
 - It is about 20% faster
 - Multiple inheritance with both slot-based classes throws an error.
-- Atributes cannot be defined dynamically.
+- Artributes cannot be defined dynamically.
 
 Example:
 
@@ -597,7 +597,7 @@ func()  # 2
 ```
 
 When you call `outer`, a `Cell` is created, which means that the `count` from `inner`
-and the `counter` from `outer` are pointing the same varible.
+and the `counter` from `outer` are pointing the same variable.
 If the outer functions receives a function, this is a decorator.
 
 ```python

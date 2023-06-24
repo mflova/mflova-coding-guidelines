@@ -35,7 +35,7 @@ Main methods:
 
 - `begin`: Iterator pointing to first element.
 - `end`: Iterator pointing to last element.
-- The two aboves can be combined with `r` for reverse (`rbegin`, `rend`) or `c` for
+- The two above can be combined with `r` for reverse (`rbegin`, `rend`) or `c` for
   constant (`cbegin`, `cend`) or both (`crbegin`, `crend`).
 - `data`: returns pointer to first element.
 - `push_back`: Push elements into vector

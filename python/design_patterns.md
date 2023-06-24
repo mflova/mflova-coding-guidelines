@@ -14,7 +14,7 @@ simpler functions to test that do not depend on this class.
 
 Add one more layer of abstraction between the creation of the class and its use. In
 this pattern, the class that is passed as argument is an abstract one that includes the
-sub-class I want to pass. Ths way, I can create different classes and respect the
+sub-class I want to pass. This way, I can create different classes and respect the
 modularity. Example: A class `Car` that can take different `Engines`. It is better to,
 instead of having:
 
@@ -61,6 +61,6 @@ container for these. For example:
 ## Proxy design
 
 Used to provide greater abstraction of a class. For example, we can use a class to
-instanciate its main behaviour and this wrapper to provide security layers, logging...
+instantiate its main behaviour and this wrapper to provide security layers, logging...
 etc. Usually, by convention, the name of these wrappers is the name of the class but
 prepending the word `Proxy`

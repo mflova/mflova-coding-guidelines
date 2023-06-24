@@ -80,7 +80,7 @@ end of the class.
 
 ## Prototype
 
-Prototypes are tipically partially initialized objects that can be used as a starting
+Prototypes are typically partially initialized objects that can be used as a starting
 point to build an object. Due to its nature, they are typically implemented with the
 factory pattern.
 

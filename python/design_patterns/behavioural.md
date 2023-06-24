@@ -2,7 +2,7 @@
 
 For more details, visit refactor guru website.
 
-## Chain of responsability
+## Chain of responsibility
 
 Allow components to process information or events in a chain. It lets you pass requests
 along a chain of handlers. The idea is to have something similar to a linked list where
@@ -30,7 +30,7 @@ specific classes that will iterate over that collection.
 ## Mediator
 
 Provides mediation services between two or more objects. As an example, this works like
-the control tower in an airport. Objects no longer have to know about the existance of
+the control tower in an airport. Objects no longer have to know about the existence of
 other objects. Only has to communicate with the mediator. This will implement a new
 class `Mediator` usually with a single method `notify(sender)`. Each component will
 have a reference to the mediator. Then, another new subclass `ConcreteMediator` will
@@ -40,7 +40,7 @@ handle the relationship between all different components with methods like `reac
 ## Memento
 
 Store the representation of a system state, what can be used to undo/redo in a history
-of states. You can take snapshots that will rememeber the current state of the object.
+of states. You can take snapshots that will remember the current state of the object.
 Three main classes:
 
 - `Originator`: Can take snapshots of itself
@@ -50,7 +50,7 @@ Three main classes:
 
 ## Observer
 
-Allows notificaion of changes or events being triggered in a component. It can be
+Allows notification of changes or events being triggered in a component. It can be
 either an instance attribute or property for example. Other classes can
 subscribe/unsuscribe to the list that notifies these changes.
 

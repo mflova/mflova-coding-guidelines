@@ -2,7 +2,7 @@
 
 ## Find elements in vector
 
-`std::find` returns an interator the first element in the range that
+`std::find` returns an iterator the first element in the range that
 compares to `elem`. `last` if not found.
 
 ```cpp

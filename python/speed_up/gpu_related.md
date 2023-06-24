@@ -21,12 +21,12 @@ x_gpu = cp.array([1, 2, 3])
 l2_gpu = cp.linalg.norm(x_gpu)
 ```
 
-About how memory is transfered, creating an array with `cp` already allocates it in GPU
+About how memory is transferred, creating an array with `cp` already allocates it in GPU
 memory. There are two main methods to transfer this data from or to CPU.
 
 ```python
-cp.asarray(np_arr_in_cpu)  # It will trasnfer CPU to GPU
-cp.asnumpy(cp_arr_in_gpu)  # It will transger GPU to CPU
+cp.asarray(np_arr_in_cpu)  # It will transfer CPU to GPU
+cp.asnumpy(cp_arr_in_gpu)  # It will transfer GPU to CPU
 ```
 
 ## Dask

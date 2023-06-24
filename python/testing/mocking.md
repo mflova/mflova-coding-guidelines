@@ -18,7 +18,7 @@ Be aware that there are 2 different types:
 
 - Mocking: Create an object with `mock` library.
 - Stub: Same calls than the original object but less complex than a fake. Usually created
-  as a separete class.
+  as a separate class.
 - Fake: Complex object and very functional. Usually created as a separate class.
 
 ## Theoretical concepts
@@ -49,9 +49,9 @@ func.assert_called_with()
 func.assert_called_once_with()
 ```
 
-This technique about verifying wether our objects was called and how, it is called "spy"
+This technique about verifying whether our objects was called and how, it is called "spy"
 or "spying". If you want to create a whole class base objects and inspect any of its
-attributes, you can use `wraps` flag, avaialble in `mock.path` or `Mock`.
+attributes, you can use `wraps` flag, available in `mock.path` or `Mock`.
 
 You can use `mock.patch` to substitute the behaviour of currently defined objects/classes/attributes...
 

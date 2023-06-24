@@ -72,10 +72,10 @@ This loop is extremely quick. More than its equivalent with numpy.
 Interesting flags that you can add:
 
  - `nopython`: Forces all the code to be compiled. If there is a problem, a exception
-    is raised. Recommended to alwyas have it set to `True`.
+    is raised. Recommended to always have it set to `True`.
  - `parallel`: It will analyze the code, optimize and parallelize (multithread) if
     possible.
-    You can also use `prange` instead of `range` to explicitely indicate parallel loops.
+    You can also use `prange` instead of `range` to explicitly indicate parallel loops.
     Recommended its use when data is more than 1KB at least. More information explained
     in next section.
  - `fastmath`: Sacrifice accuracy in exchange of speed
@@ -110,7 +110,7 @@ Numba applies the following techniques when `parallel` is set to `True`:
   - Loop invariant code motion: Move all the code possible outside the for loop (only the
     one that will not affect the code)
   - Allocation hoisting: Complex numpy based optimization.
-- Multithreading: It helps a lot for IO-boundes opperations. These can be operations
+- Multithreading: It helps a lot for IO-boundes operations. These can be operations
   where much data is moved from RAM to the cache of the CPU to perform any operation.
   This is because when working with big amounts of data stored in RAM, CPU needs to
   transfer them to its cache in order to perform operations with them. Because of this,
@@ -213,7 +213,7 @@ numba_add.reduce(a, axis=1)
 
 While `@vectorize` applies the same instruction to each element in an array,
 `@guvectorize` allows you to apply the same instruction to a set of vectors (or bigger
-dimensiones). Therefore, instead of being element-wise, it is matrix-wise. This one is
+dimensions). Therefore, instead of being element-wise, it is matrix-wise. This one is
 more complex but gives more possibilities. You can think of `@vectorize` as a specific
 and limited case of `@guvectorize`.
 
@@ -274,12 +274,12 @@ array([[10, 11, 12],
        [23, 24, 25]])
 ```
 
-Conclusion: In order to avoid confusion when writting your function, think as if you only
+Conclusion: In order to avoid confusion when writing your function, think as if you only
 work with either scalars or 1D arrays.
 
 ##### More complex cases
 
-As I said before, there are two main restrictions when writting the second part of the
+As I said before, there are two main restrictions when writing the second part of the
 decorator:
 
 - All symbols appearing at right, must be at left
@@ -330,7 +330,7 @@ a new value to it doesn't modify the original array passed to the function. Note
 in the example below, `res` is `float64[:]` but it is denoted as an scalar in the
 second element of the string. Note we since we do not know how many elements our function
 will have (just `n`), we need to apply functions that apply to all of our 1D input array.
-These are opperations that already work with vectors of data (`numpy`-based) like in
+These are operations that already work with vectors of data (`numpy`-based) like in
 this example, or `for` loops like in the next example.
 
 ```python
@@ -430,7 +430,7 @@ Usually, this is the speed up order, from low to high:
     6. Numba with cuda vectorization `target=cuda` (if operation is heavy enough that
        compensates memory transfers)
 
-Official numba website recomends using `target=cpu` for data less than 1KB.
+Official numba website recommends using `target=cpu` for data less than 1KB.
 `target=parallel` for data less than 1MB and `target=cuda` for greater than
 1MB and with heavy computation. However, it depends a lot on the use case,
 so it is better to experiment.

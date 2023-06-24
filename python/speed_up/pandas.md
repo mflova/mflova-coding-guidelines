@@ -15,7 +15,7 @@ Give much more priority to vectorization and masking based techniques (see below
 ### Avoid data type inference when possible
 
 Make sure that when saving a pandas, it is done by preserving the `dtype` of each
-column. Otherwise, infering types might be slow the more rows you have.
+column. Otherwise, inferring types might be slow the more rows you have.
 
 ### Use vectorized operations
 
@@ -101,7 +101,7 @@ for column in ("column1", "column2"):
 
 #### Indexing by column and indices
 
-If you also want to filter by indeces and column name, you can use `.loc` like:
+If you also want to filter by indices and column name, you can use `.loc` like:
 
 ```python
 df.loc[range(1,100), "column"]

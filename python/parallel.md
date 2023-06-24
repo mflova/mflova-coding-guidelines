@@ -24,7 +24,7 @@ Useful sync features:
    variables by different threads.
  - Joins: `joins()` is used in the parent thread to wait for the child thread to finish
    its execution.
- - Conditional Variables: With `Condition()` you can instatie them. It contains teh
+ - Conditional Variables: With `Condition()` you can instatie them. It contains the
    same functionalities as mutex (therefore you can lock and release) but you can also 
    `wait` and `notify` to make a thread wait and notify to wake up the waiting threads
    to re-evaluate the condition.
@@ -34,7 +34,7 @@ Useful sync features:
 
      - `count`: Variable that keep tracks of how many threads are alive
      - `wait`: Wait till count > 0
-     - `done`: substracts one to count
+     - `done`: subtracts one to count
      - `add`: Add one to count. This can be done by either the main thread or any
        subthread by creating new subthreads.
 
@@ -52,7 +52,7 @@ Useful sync features:
 ### Pipeline pattern
 
 Pattern used when you have a few functions that are executed in order and having a
-dependant relationship, like in an assembly line. In this case, instead of waiting the
+dependent relationship, like in an assembly line. In this case, instead of waiting the
 first function to do all the job and then switching to the second function, this
 pattern suggests using pipelines to start adding jobs to the pipeline. Then, the next
 function would be hearing this pipeline and processing the incoming jobs. When the

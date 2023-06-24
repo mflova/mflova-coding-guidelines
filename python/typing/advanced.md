@@ -260,7 +260,7 @@ More info about decorators in [Mypy docs](https://mypy.readthedocs.io/en/stable/
 ### Overriding types in methods
 
 Remember that, when creating a class from a base one, the arguments tends to be
-contarvariant while the return type is covariant.
+contravariant while the return type is covariant.
 For example, code below is ok because the return type of func (in B) is subtype of
 `float`, while the argument is a supertype.
 Doing `val: int` in `B`, mypy raises an error saying that the liskov principle is

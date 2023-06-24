@@ -66,4 +66,4 @@ Different types:
 
 - Protective Proxy: To add an extra protective layer.
 - Logging Proxy: To add logging capabilities
-- Virtual Proxy: Not loading an object in memoery until it is going to be used.
+- Virtual Proxy: Not loading an object in memory until it is going to be used.
