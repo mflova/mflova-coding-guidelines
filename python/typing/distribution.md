@@ -66,3 +66,44 @@ What solutions do we have?
 - Lastly, you can allow implicit reexports with `--implicit-reexport = True` for `Mypy`.
   Be aware that this might shadow some non intended implicit exports, so first two options
   are better recommended.
+
+## Why type hints are working despite I do not use `py.typed`?
+
+This all depends on the static type checker you are using. The current resolution order
+for searching type information is the following one:
+
+1. User-defined paths like `MYPYPATH` for `mypy`
+2. User code
+3. Stub packages
+4. Type information from package if `py.typed` is found (it can be either stub or inline based)
+5. Typeshed repository
+
+When working with `mypy`, if we install our own package it will probably say:
+
+```shell
+Skipping analyzing <Package>: module is installed, but missing library stubs or py.typed marker
+```
+
+This is because type information was searched for these 5 steps but none could be found.
+As a consequence, this warning is raised, making most of our variables `Any`. However,
+there might be some tools that, when this happens, it will automatically infer some of the
+types by looking at the source code. You might believe that your type hints are working,
+but they are totally ignored and replaced by the infered one. Why the tool is not using
+the type hints if it has direct access to the source code? This is because if there is no
+`py.typed`, static type checker will ignore them to avoid problems with high dynamic
+packages as said before. This behaviour has been seen for `pylance` for example.
+
+```python
+# my_tool.py (no py.typed)
+foo: int
+
+# another script that imports the above package
+from my_tool import foo
+from typing_extensions import reveal_type
+
+reveal_type(foo)  # It will say it is `Any` despite type hints were provided.
+```
+
+Since some tools might not raise a warning and proceed to infer types, it is always
+recommended to put `py.typed` if your package implements inline type hints to avoid this
+undesired behaviour.
