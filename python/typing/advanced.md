@@ -68,6 +68,13 @@ An upper bound means that, supposing that we have a few class derived such as:
 either A or B. You can also select if the variable is covariant, contravariant or
 invariant. See [this link](https://stackoverflow.com/questions/61568462/python-typing-what-does-typevara-b-covariant-true-mean)
 
+Important note: This does not only affect inheritance. For example,`str` is a subtype of
+`Union[str, int]`. Meaning that you cannot pass `List[str]` when expecting
+`List[Union[str, int]]` as `List` is invariant. This is because `List` implies mutability.
+Because of that, inside a method I can append a `int` and break the input data type, which
+is supposed to be `List[str]`. That's why `List` is invariant and `Sequence`(immutable) is
+`covariant`.
+
 There are some predefined `TypeVar` that can be imported from the `typing` module:
 
 ```python

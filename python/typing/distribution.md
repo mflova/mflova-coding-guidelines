@@ -65,7 +65,7 @@ What solutions do we have?
   or packages that will be implictely exported from another packages.
 - Lastly, you can allow implicit reexports with `--implicit-reexport = True` for `Mypy`.
   Be aware that this might shadow some non intended implicit exports, so first two options
-  are better recommended.
+  are better recommendedp.
 
 ## Why type hints are working despite I do not use `py.typed`?
 

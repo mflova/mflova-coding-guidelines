@@ -84,7 +84,7 @@ The quickest approach found was the following one:
 ```python
 lst: list[pd.Series] = []
 for column in ("column1", "column2"):
-  lst = df[column]  # Quickext indexing
+  lst.append(df[column])  # Quickest indexing
 arr = np.vstack(lst).T  # Build a numpy array. It takes 99% of the time but still really fast.
 ```
 
