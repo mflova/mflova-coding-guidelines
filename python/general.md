@@ -404,6 +404,11 @@ def append_to(element, to=[]):
     return to
 ```
 
+In Python, even functions are objects created when the interpreter reaches the `def`
+keyword. During this step, some attributes like `__default__` will store the default
+values. This happens only once, during its creation. If this attribute holds mutable
+arguments, there is a high change they end up being mutated.
+
 To solve it, you can either use inmutable objects (although these are also defined once,
 you are guaranteed that no other calls will modify the object) or defining these
 default values in the body of the function:
@@ -568,9 +573,12 @@ Python scripts for variables and functions:
 
 ## Closures and decorators
 
-What's its use? They are used to create parametrized functions whose parameters go
-beyond the scope of the function. Imagine a function whose behaviours depend on a
-global variable.
+What's its use? They are used to create parametrized functions whose parameters go beyond
+the scope of the function. Imagine a function whose behaviours depend on a global
+variable. Another way of seeing them, it is just a function with extended scope. For
+example, a class holds a memory place where it can store extra data. Same goes with
+closures. Differences is that classes stores it in `__dict__` while closures in
+`__closure__`
 
 Closure is just a function that references a free variable (a.k.a non local variable).
 This free variable has memory outside of the scope.
@@ -644,6 +652,32 @@ wrapped_func()
 
 Important note: Be careful because cmprehensions and lambda functions might create a
 closure with free variables and it is not so easy to see.
+
+### Extra note about the scope
+
+Always have in mind that python is both compiled and interpreted. During the compilation,
+Python decides what will be the scope of a variable. Even if it is not defined. Then, the
+interpreter will perform the lookup during runtime.
+
+```python
+def factory():
+    a = 0
+    def func():
+        print(a)  # OK: Here, during compilation, `a` is defined to be nonlocal
+        return
+    return func
+```
+
+```python
+def factory():
+    a = 0
+    def func():
+        print(a)  # ERROR: Here, `a` is defined to be local during compilation, as during the body function it is defined.
+                  # Then it will crash in runtime as `a` is unbounded
+        a = 2
+        return
+    return func
+```
 
 ## Single dispatch (pseudo function overload)
 
