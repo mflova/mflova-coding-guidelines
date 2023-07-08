@@ -578,7 +578,8 @@ the scope of the function. Imagine a function whose behaviours depend on a globa
 variable. Another way of seeing them, it is just a function with extended scope. For
 example, a class holds a memory place where it can store extra data. Same goes with
 closures. Differences is that classes stores it in `__dict__` while closures in
-`__closure__`
+`__closure__`. As a consequence, `__closure__` will keep different strong references to
+all free variables, what will make the garbage collector not act upon them.
 
 Closure is just a function that references a free variable (a.k.a non local variable).
 This free variable has memory outside of the scope.
