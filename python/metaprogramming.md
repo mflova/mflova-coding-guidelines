@@ -62,3 +62,32 @@ class Person(metaclass=MyType):
 This can be helpful to remove code duplications between different classes. It can be
 seen as a common template to create new classes. However, although this is much more
 flexible than inheritance, it is much more complex and not so easy to read.
+
+## Alternatives
+
+Most of the times, metaprograming techniques are applied as a way to initialize a class.
+Let say, as an example, that you want to ensure that all methods within a class follow a
+specific naming convention. Or that all methods are decorated with a given decorator.
+Technically, these are done with metaclasses. However, in Python +3.6 a new approach was
+implemented for these cases. This is called the `__init_subclass__` method. This one is
+attached to a superclass and it will serve as a way to initialize any subclass deriving
+from it. This way we can apply all those advantages but without using metaclasses.
+Metclasses should avoided when possible, as they introduce complexity and problems: you
+can only use one metaclass, harder to maintain and read... This was approved in
+[PEP487](https://peps.python.org/pep-0487/). In this PEP, they write two examples: 1)
+using `__init_subclass__` with an input parameter to customize the creation of our class
+(see image) and 2) a superclass that keeps in a list the references to all of its
+subclasses.
+
+
+```python
+class QuestBase:
+   # this is implicitly a @classmethod (see below for motivation)
+   def __init_subclass__(cls, swallow, **kwargs):
+       cls.swallow = swallow
+       super().__init_subclass__(**kwargs)
+
+# Here we are customing our class creation in a very simple way
+class Quest(QuestBase, swallow="african"):
+   pass
+```
