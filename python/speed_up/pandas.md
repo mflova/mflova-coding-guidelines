@@ -6,6 +6,27 @@ This document gathers everything related to speed up `Pandas` workflow.
 
 Specific tips for `pandas`:
 
+### Quick tips
+
+- `pivot_table` represent data by giving the intersection of the index, columns and the
+  aggregation values that you want to represent.
+- `merge` merge two dataframes by providing matching values within a specific column that
+  must be present in both dataframes.
+  - Different modes (see more in the website):
+    -  `left` saying that we are interested in perform the merge on the left dataframe
+    - `inner` saying that we are interested in perform the merge on the dataframe only if
+       both values exist in the columns
+  - If the column is named different in both df, I can use the arguments `left_on` and
+    `right_on`. If these values are in the index, I can indicate `left_index` or
+    `right_index` (or both) as true. If both are set to true, I have the `join` method for
+    that. It is an alias.
+- `merge_asof`: Same as with `merge` but with not exact matches
+- `concat`: Append all rows within an iterable of dataframes. It can also be changed to be
+  column as the axis. `key` kwarg can be used to also create a new level in the axis where
+  the data is appended.
+- To index a `MultiIndex` easily, use `idx = pd.IndexSlice` and `df.loc[idx[:,:,0]]`. This
+  one will directly select the index 0 of the latest level.
+
 ### Avoid `iterrows`
 
 Always avoid `iterrows`. This one creates a `Series` object for each row and has huge
