@@ -80,16 +80,18 @@ For more information read: https://blog.thea.codes/my-python-testing-style-guide
 
 ### Differences between `spec` and `wraps`
 
-Both allow you to create more closer to reality mocks by giving an instance or class.
-There is a main big difference:
+Both allow you to create more closer to reality mocks by giving an instance or class. With
+both, calling a method of the original object that does not exist will trigger an
+exception. However, there is a main big difference:
 
 - `wraps`: As the name says, the mock that uses `wraps` will create a mock whose calls are
-  redirected through the instance/class provided. Call is passed to the real object.
+  redirected through the instance/class provided. Call is passed to the REAL object.
   However, accessing any of the attributes from the instance will return a mock object
   that not only is linked to the real class but you can also perform typical mock calls
   (`assert_called`, `assert_called_once`...)
 - `spec`: On the other hand, specs allow you to create an object that acts as the original
-  one, being `spec_set` a stricter version.
+  one, being `spec_set` a stricter version. However, this one will not execute the methods of
+  the object.
 
 ### Mocking specific objects
 
