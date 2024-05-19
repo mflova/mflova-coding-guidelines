@@ -27,6 +27,20 @@ Specific tips for `pandas`:
 - To index a `MultiIndex` easily, use `idx = pd.IndexSlice` and `df.loc[idx[:,:,0]]`. This
   one will directly select the index 0 of the latest level.
 
+
+### Advanced indexing
+
+There are 2 main ways to index multiindex data:
+  - Using `pd.IndexSlide`:
+      ```
+      idx = pd.IndexSlice
+      dfmi.loc[idx[:, :, ["C1", "C3"]], idx[:, "foo"]]
+      ```
+  - Using `.xs` to directly filter by a specific value within a specific level:
+      ```
+      df.xs("one", level="second", drop_level=False/Trye)
+      ```
+
 ### Avoid `iterrows`
 
 Always avoid `iterrows`. This one creates a `Series` object for each row and has huge
