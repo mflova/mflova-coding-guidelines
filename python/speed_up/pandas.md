@@ -6,10 +6,29 @@ This document gathers everything related to speed up `Pandas` workflow.
 
 Specific tips for `pandas`:
 
-### Quick tips
+### Methods
 
-- `pivot_table` represent data by giving the intersection of the index, columns and the
-  aggregation values that you want to represent.
+#### Reshape
+
+- `pivot` represent data by giving the intersection of the index, columns and the
+  aggregation values that you want to represent. (See images online to understand it
+  better)
+  - `pivot_table` is supposed to eb more powerful as it can handle repeated values by
+    adding a `aggfunc`. However, it can be also considered more dangerous as more
+    operations might be applied
+- `pd.crosstab`: Build a table to see how two variables are correlated. It takes
+  array-like or series as index, columns and values. Then, an aggregation function can be
+  passed as input argument.
+- `melt`: Opposite as `pivot`. It allows to move some columns as values (see images online
+  to understand it better).
+- `groupby`: Meant to group the information acccording to some criteria, apply an
+  aggregation function, and then comnbine it into a new dataframe or series
+- `stack/unstack`: With `unstack` the values from an index will be put as columns.
+- `explode`: If we have a column whose associated values are lists, we can use `explode`
+  to unpack these lists into multiple rows within the same dataframe.
+
+#### Merge based
+
 - `merge` merge two dataframes by providing matching values within a specific column that
   must be present in both dataframes.
   - Different modes (see more in the website):
@@ -24,21 +43,19 @@ Specific tips for `pandas`:
 - `concat`: Append all rows within an iterable of dataframes. It can also be changed to be
   column as the axis. `key` kwarg can be used to also create a new level in the axis where
   the data is appended.
-- To index a `MultiIndex` easily, use `idx = pd.IndexSlice` and `df.loc[idx[:,:,0]]`. This
-  one will directly select the index 0 of the latest level.
 
 
 ### Advanced indexing
 
 There are 2 main ways to index multiindex data:
-  - Using `pd.IndexSlide`:
+  - Using `pd.IndexSlice`:
       ```
       idx = pd.IndexSlice
       dfmi.loc[idx[:, :, ["C1", "C3"]], idx[:, "foo"]]
       ```
   - Using `.xs` to directly filter by a specific value within a specific level:
       ```
-      df.xs("one", level="second", drop_level=False/Trye)
+      df.xs("one", level="second", drop_level=False/True)
       ```
 
 ### Avoid `iterrows`
@@ -158,3 +175,8 @@ df.swifter.apply(my_func)
 ## GPU related
 
 See `gpu_related.md`
+
+## Interesting tools
+
+- `pandas-profiling`: It generates HTML based reports to inspect a dataset. It can be also
+  used to compare how a dataset changes over time.
