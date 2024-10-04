@@ -17,8 +17,8 @@ Specific tips for `pandas`:
     adding a `aggfunc`. However, it can be also considered more dangerous as more
     operations might be applied
 - `pd.crosstab`: Build a table to see how two variables are correlated. It takes
-  array-like or series as index, columns and values. Then, an aggregation function can be
-  passed as input argument.
+  array-like or series as index, columns and values. By default, this will compute the
+  count of the values, but I can provide any aggregation function
 - `melt`: Opposite as `pivot`. It allows to move some columns as values (see images online
   to understand it better).
 - `groupby`: Meant to group the information acccording to some criteria, apply an
