@@ -47,14 +47,21 @@ Specific tips for `pandas`:
 
 ### Advanced indexing
 
+It is way more comfortable to use queries instead of masks. Easier to read:
+
+```py
+df = df.query("age > 20")
+df = df.query("age > @min_age")  # Use variables
+```
+
 There are 2 main ways to index multiindex data:
   - Using `pd.IndexSlice`:
-      ```
+      ```py
       idx = pd.IndexSlice
       dfmi.loc[idx[:, :, ["C1", "C3"]], idx[:, "foo"]]
       ```
   - Using `.xs` to directly filter by a specific value within a specific level:
-      ```
+      ```py
       df.xs("one", level="second", drop_level=False/True)
       ```
 
