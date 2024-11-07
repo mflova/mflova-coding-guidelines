@@ -51,14 +51,13 @@ func.assert_called_once_with()
 
 This technique about verifying whether our objects was called and how, it is called "spy"
 or "spying". If you want to create a whole class base objects and inspect any of its
-attributes, you can use `wraps` flag, available in `mock.path` or `Mock`.
+attributes, you can use `wraps` flag, available in `mock.patch` or `Mock`.
 
 You can use `mock.patch` to substitute the behaviour of currently defined objects/classes/attributes...
 
 ```python
 # Usable as decorator, class decorator or context manager
 # Target can be a string representation of the import or the object already initialized
-mock.patch(target, return_value=return_value, side_effec=side_effect)
 mock.patch(target, return_value=return_value, side_effec=side_effect)
 ```
 
