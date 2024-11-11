@@ -1,10 +1,6 @@
 # Seaborn
 
-Some plots or explanations might still be missing:
-
-- Clustermap
-- Jointplot
-- Pairplot
+Recommended sources: Kimberly Fessel YT channel.
 
 ## Main philosophy
 
@@ -37,20 +33,106 @@ you can see more information about the API.
 
 ## Figure-level
 
-- `sns.FacetGrid`: This one, combined with `map` or `map_dataframe` allows you to define a
-  grid where each column or row can be represented by a different variable. After it,
-  `map_dataframe` will only need to indicate the type of plot you need `sns.lineplot`,
-  `sns.scatterplot`... And corresponding kwargs. I can also pass a custom function that
-  makes use of different functions of `sns` to repesent data as well.
-- `sns.lmplot`: Perform regression-based plots. Its equivalent `Axes-level` plot is
-  `sns.regplot`
-- `sns.pairplot`: For distributions. It will generate a grid that shows the correlation
-  between variables given. Example: `sns.pairplot(iris, hue="species")`. Created under the
-  hood with `sns.PairGrid`.
-- `sns.jointplot`: For distributions. Plots the information as a scatter and, on top of
-  that, on the side, a histogram that represents each of the two variables. If you are
-  looking for a more specific representation, be aware that these are created via
-  `sns.JointGrid`. Take a look at it.
+### Cluster map
+
+Among a dataset with multiple variables, this one will represent which ones are the most
+related ones. For example, imagine I have the `penguins` dataset where I have, for each
+penguin, the `fin_size_mm`, `height`...
+
+This type of plot will show me not only which variables are correlated (for example, let's
+say `fin_size_mm` and `height`) but also individual species whose set of parameters are
+related. Clustermap will generate a hierarchy that relates all species and parameters.
+
+### Relplot
+
+Handle statistical relationships. With kind, these can be:
+
+- scatterplot() (with kind="scatter"; the default)
+- lineplot() (with kind="line")
+
+### Displot
+
+Handle distributions. Both univariate or bivariate. Based on the keyword argument `kind`,
+these can be:
+
+- histplot() (with kind="hist"; the default)
+- kdeplot() (with kind="kde"): Kernel density estimation. For each observation, a kernel
+  (gaussian by default) will be added to the plot. This will give us a continious
+  approximation of our distribution. It can be useful to compare multiple distributions as
+  these ones can be represented with a line instead of with histogram bars. It can be
+  acumulative as well. However, this type of plot can be misleading speciallly at both
+  ends, as the maximum and minimum values are not properly represented due to the kernel.
+- ecdfplot() (with kind="ecdf"; univariate-only): Empirical cumulative distribution. It
+  represents the cumulative count of the observations. One important argument is
+  `weight`. We can use this one to weight the count (thus not making it based on the
+  observation count but, as an example, the total money earned)
+
+### Catplot
+
+Handle the representation of categorical data. Among others, these can be:
+
+- Categorical scatterplots:
+
+  - stripplot() (with kind="strip"; the default): Similar to the swarmplot but this one
+    presents overlapping. Therefore, if `alpha` parameter is used, density can be
+    highlighted by the intensity of the color.
+  - swarmplot() (with kind="swarm"): Plot the categorical observations in a "scattered"
+    way. Points are never overlapping therefore the width of the accumulated points will
+    highlight the density of the data.
+
+- Categorical distribution plots:
+
+  - boxplot() (with kind="box")
+  - violinplot() (with kind="violin")
+  - boxenplot() (with kind="boxen")
+
+- Categorical estimate plots: In these type of plots, the data is "processed" or
+  aggregated in a specific way:
+
+  - pointplot() (with kind="point")
+  - barplot() (with kind="bar"): It will aggregate the data based on mean by default.
+    Then, it will compute the confidence interval of it
+  - countplot() (with kind="count"): Performs the count. Barplot performs aggregation on
+    the data.
+
+### FacetGrid
+
+This one, combined with `map` or `map_dataframe` allows you to define a grid where each
+column or row can be represented by a different variable. After it, `map_dataframe` will
+only need to indicate the type of plot you need `sns.lineplot`, `sns.scatterplot`... And
+corresponding kwargs. It is also possible to call `map_dataframe` multiple times. I can
+also pass a custom function that makes use of different functions of `sns` to repesent
+data as well. Here I can also pass `hue` argument. If I wanted to modify the way title are
+shown, I can do it with:
+
+```py
+# Being g and object of type FacetGrid
+g.set_titles(col_template='{col_name} Island', row_template='{row_name}');
+```
+
+### Linear model plot (lmplot)
+
+`sns.lmplot`: From linear model plot. Perform regression-based plots. Its equivalent
+`Axes-level` plot is `sns.regplot`
+
+### Pairplot
+
+`sns.pairplot`: For distributions. It will generate a grid that shows the correlation
+between variables given. Example: `sns.pairplot(iris, hue="species")`. Created under the
+hood with `sns.PairGrid`.
+
+This plot is more flexible than it seems. Another use is by indicating `x_vars` and
+`y_vars` in order to fix the variables I want to represent. I also have arguments such as
+`diag_kws` to modify the behaviour of specific subplots like, in this case, for the
+diagonal ones.
+
+### Jointplot
+
+`sns.jointplot` For bivariate distributions. Plots the information as a scatter and, on
+top of that, on the side, the marginal distribution of each isolated variable. This one
+has specific keywords sucgh as `joint_kws` or `marginal_kws` to send specific parameters
+to these isolated plots. If you are looking for a more specific representation, be aware
+that these are created via `sns.JointGrid`. Take a look at it.
 
 ## Axes-level
 
@@ -59,21 +141,36 @@ wrappers `relplot`, `catplot` and `displot`.
 
 The most interesting type of plots:
 
-- `sns.regplot`: Perform regression-based plots. Its equivalent `Figure-level` plot is
-  `sns.lmplot`
-- `sns.heatmap` when the dataframe represents a table, heatmap will generate its
-  corresponding heatmap
-- `sns.residplot`: This one will internally perform a linear regression and then plot the
-  residuals. It can be helpful to know in which section of the data the regression
-  struggles to fit.
+### Regplot
+
+`sns.regplot`: Perform regression-based plots. Its equivalent `Figure-level` plot is
+`sns.lmplot`
+
+### Hetmap
+
+`sns.heatmap` when the dataframe represents a table, heatmap will generate its
+corresponding heatmap. Recomended to use `square=True` to force all rectangles are forced
+to be squared.
+
+### Residplot 
+
+`sns.residplot`: This one will internally perform a linear regression and then plot the
+residuals. It can be helpful to know in which section of the data the regression struggles
+to fit.
 
 ## Interesting features
 
 ### Keywords
 
-The `seaborn` interface is quite uniform. Along many implementation you will find some
-specific keywords that are in most of the plots. These can be:
+The `seaborn` interface is quite uniform. Be aware that many keywords will be
+automatically redirected to the `matplotlib` equivalent function. As an example, these
+will be arguments such as `lw` for the line width. Along many implementation you will find
+some specific keywords that are in most of the plots. These can be:
 
+- `color`: This one can use a constant color for all of our plots. If this one is used in
+  combination with `hue`, a gradient of this same color will be obtained.
+- `palette`: This one will use a specific palette in our plot. This one defines multiple
+  colors.
 - `hue`: If the plot allows this argument, you can write the name of a pandas column and
   seaborn will automatically encode that information into the color of the plot.
 - `style`: If the plot allows this argument, you can write the name of a pandas column and
