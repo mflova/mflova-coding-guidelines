@@ -43,9 +43,12 @@ This type of plot will show me not only which variables are correlated (for exam
 say `fin_size_mm` and `height`) but also individual species whose set of parameters are
 related. Clustermap will generate a hierarchy that relates all species and parameters.
 
+If variables have different scales, `standard_scale=True` can be helpful.
+
 ### Relplot
 
-Handle statistical relationships. With kind, these can be:
+It comes from relational plots. Meant to handle statistical relationships. With kind,
+these can be:
 
 - scatterplot() (with kind="scatter"; the default)
 - lineplot() (with kind="line")
@@ -117,22 +120,23 @@ g.set_titles(col_template='{col_name} Island', row_template='{row_name}');
 
 ### Pairplot
 
-`sns.pairplot`: For distributions. It will generate a grid that shows the correlation
-between variables given. Example: `sns.pairplot(iris, hue="species")`. Created under the
-hood with `sns.PairGrid`.
+`sns.pairplot`: For pair-wise relationship. It will generate a grid that plots the
+marginal distribution on the diagonal and relationship plots between paired variables on
+all the other ones. Example: `sns.pairplot(iris, hue="species")`. Created under the hood
+with `sns.PairGrid`.
 
-This plot is more flexible than it seems. Another use is by indicating `x_vars` and
-`y_vars` in order to fix the variables I want to represent. I also have arguments such as
-`diag_kws` to modify the behaviour of specific subplots like, in this case, for the
-diagonal ones.
+This plot is more flexible than it seems. Another use is by indicating `vars` and the list
+of all columnts. If I want even more control, I can provide `x_vars` and `y_vars` in order
+to fix the variables I want to represent I also have arguments such as `diag_kws` to
+modify the behaviour of specific subplots like, in this case, for the diagonal ones.
 
 ### Jointplot
 
-`sns.jointplot` For bivariate distributions. Plots the information as a scatter and, on
-top of that, on the side, the marginal distribution of each isolated variable. This one
-has specific keywords sucgh as `joint_kws` or `marginal_kws` to send specific parameters
-to these isolated plots. If you are looking for a more specific representation, be aware
-that these are created via `sns.JointGrid`. Take a look at it.
+`sns.jointplot` For bivariate distributions. Plots a relationship-based plot on the center
+and, on top of that, on the side, the marginal distribution of each isolated variable.
+This one has specific keywords sucgh as `joint_kws` or `marginal_kws` to send specific
+parameters to these isolated plots. If you are looking for a more specific representation,
+be aware that these are created via `sns.JointGrid`. Take a look at it.
 
 ## Axes-level
 
@@ -180,6 +184,26 @@ some specific keywords that are in most of the plots. These can be:
 - `row`/`col`: If the plot allows subplots (these are typically the figure-level
   implementations), you can indicate the column name on `row`/`col` to split the
   information of that column into multiple plots.
+
+### Styling
+
+Usually, all palettes will have a `_r` version. This means that it is is the reversed
+version. In otder to create palette, I can do:
+
+- `sns.dark_palette("color")`: It will create a paltte from dartk to the color given.
+- `sns.light_palette("color")`: It will create a paltte from white to the color given.
+- `sns.blend_palette(list_of_colors)`: It will create a "gradient" between all colors
+  given.
+  
+All palette usually accept a integer after the first argument that indicates how many
+colors the gradient will have.
+
+Highlight a specific series: For this, I can create a dictionary with keys the name of all
+non-highlighted series represented and the value `gray` and the one I want to highlight
+with `red`. Then I only need to pass it to the kwarg `palette` from any plot.
+
+I can also use `sns.choose_colorbrewer_palette()` function to create an interactive widget
+where I can create the desired palette. It must be used in jupyter-based notebooks.
 
 ### Subplots
 
