@@ -65,6 +65,7 @@ these can be:
   these ones can be represented with a line instead of with histogram bars. It can be
   acumulative as well. However, this type of plot can be misleading speciallly at both
   ends, as the maximum and minimum values are not properly represented due to the kernel.
+  It can be used to generate heatmaps (see corresponding section).
 - ecdfplot() (with kind="ecdf"; univariate-only): Empirical cumulative distribution. It
   represents the cumulative count of the observations. One important argument is
   `weight`. We can use this one to weight the count (thus not making it based on the
@@ -150,11 +151,18 @@ The most interesting type of plots:
 `sns.regplot`: Perform regression-based plots. Its equivalent `Figure-level` plot is
 `sns.lmplot`
 
-### Hetmap
+### Heatmap
 
 `sns.heatmap` when the dataframe represents a table, heatmap will generate its
 corresponding heatmap. Recomended to use `square=True` to force all rectangles are forced
-to be squared.
+to be squared. Heatmap will typically require that the information is groupped within a
+finite table. This means that if you are dealing with continuous signals, you will have to
+use `pd.cut` in order to create bins. As an alternative, you can also use any `kde` based
+plot to represent bivariate distributions (these are either `sns.displot(kind="kde")` or
+`sns.kdeplot` with `x=`, `y=` and `fill=True` arguments given). Then, you can increase
+`levels` keyword argument and optionally `cut` to cut the representation beyond both ends
+of the distribution. For this one you will not need to group the data in bins. Just the
+pivot table.
 
 ### Residplot 
 

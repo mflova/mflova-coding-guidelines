@@ -11,8 +11,8 @@ Specific tips for `pandas`:
 #### Reshape
 
 - `pivot` represent data by giving the intersection of the index, columns and the
-  aggregation values that you want to represent. (See images online to understand it
-  better)
+  aggregation values that you want to represent. Opposite of `melt`. (See images online to
+  understand it better)
   - `pivot_table` is supposed to eb more powerful as it can handle repeated values by
     adding a `aggfunc`. However, it can be also considered more dangerous as more
     operations might be applied
@@ -23,7 +23,8 @@ Specific tips for `pandas`:
   to understand it better).
 - `groupby`: Meant to group the information acccording to some criteria, apply an
   aggregation function, and then comnbine it into a new dataframe or series
-- `stack/unstack`: With `unstack` the values from an index will be put as columns.
+- `stack/unstack`: With `unstack` the values from an index will be put as columns. `stack`
+  will transform the data to a long-format while `unstack` will do it into a wide-format.
 - `explode`: If we have a column whose associated values are lists, we can use `explode`
   to unpack these lists into multiple rows within the same dataframe.
 
