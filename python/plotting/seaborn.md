@@ -114,6 +114,12 @@ shown, I can do it with:
 g.set_titles(col_template='{col_name} Island', row_template='{row_name}');
 ```
 
+I can also access many other attributes such as:
+
+```py
+g.ax.lines[0].get_color()
+```
+
 ### Linear model plot (lmplot)
 
 `sns.lmplot`: From linear model plot. Perform regression-based plots. Its equivalent
