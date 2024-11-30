@@ -26,6 +26,8 @@ For this, you always have to use `.filter`. This one allows many expressions. So
   `import polars.selectors as cs` and allow things like: `cs.starts_with`, `cs.ends_with`,
   `cs.float`...
 
+You can also use `.slice` to obtain a specific slice of the dataframe. Including one single row.
+
 ## Creating new columns
 
 In general, `df.with_columns`  helps me to access already existing columns. Therefore I can:
