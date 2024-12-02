@@ -12,6 +12,9 @@ It relies either on eager dataframes or lazy dataframes.
 - Most of the times is just recommended to use `select` along with an expression.
   Typically built with `pl.col()` for a column.
 
+Another useful keyword is `pl.len()` which gives the current size of the dataframe on the
+current context (this can be inside a groupby for example.)
+
 ## Filtering data
 
 For this, you always have to use `.filter`. This one allows many expressions. Some examples are:
@@ -132,8 +135,25 @@ Similar to pandas one. Note that there are some new ones like `max_horizontal`,
 Groupby works quite similar to `pandas`. There is `map_groups` which is the equivalent to `apply`
 .`pivot` requires an eager dataframe, so you will have to temporary collect.
 
+In addition, there is also `.over` as an expresion. Differently to `groupby`, its output
+is meant to be the same size of the dataframe, although the purpose is similar: computing
+metrics based on a criteria that groups the data.
+
 ## Merging
 
 There is mainly `pl.concat` and `pl.join` (equivalent to `pd.merge`). The first one has an
 argument called `rechunk=True` by default that will reallocate the dataframes in adjacent
 zones in memory.
+
+## Low memory usage tricks
+
+There are multiple tricks that can be done to lower done the memory usage:
+
+- Using `scan_` based methods instead of `read_`. This will allow to use Lazy dataframes
+  that optimize how the data is read
+- Use of `streaming=True` in `collect` will process the data in batches. Useful to not
+  overflow RAM memory. Not all expressions are supported. You can use `explain` to verify
+  this
+- If you want to save a file from a `LazyFrame`, it is recommended to use the methods
+  `sink_` instead of `write_`. The first one will not load the whole LazyFrame into
+  memory.
