@@ -164,3 +164,16 @@ There are multiple tricks that can be done to lower done the memory usage:
     you can later concatenate with `pl.concat`.
   - If you need even more, scan the file and before processing it, create the batches.
     This way you are not storing the whole dataframe in memory.
+
+
+## When to use different file types:
+
+- `.csv`: Row based. Only recommended for streaming. Slowest when it comes to parsing.
+- `.parquet`: Quicker than `csv`. Columnar based, meaning that it will work much better
+  with `scan_` based method. High compression but in exchange of more RAM and CPU needed
+  to decompress it. This compression also adds some overhead. Meant for long term storage.
+  Its creation might be slow due to compression.
+- `.ipc`: Light compression. It is just the same representation as an Arrow table but in
+  the hard disk. Meaning that loading it is just transfering it from the hard disk to
+  memory. It requires less CPU and it is quicker than `parquet` to load. However, its size
+  will be higher. Its creation is quick as it has much less compression than `parquet`.
