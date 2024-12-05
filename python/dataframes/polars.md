@@ -168,12 +168,21 @@ There are multiple tricks that can be done to lower done the memory usage:
 
 ## When to use different file types:
 
+We will mainly use `csv`, `parquet` and `arrow`. These last two belong to `Apache` and
+were created for different scenarios.
+
 - `.csv`: Row based. Only recommended for streaming. Slowest when it comes to parsing.
 - `.parquet`: Quicker than `csv`. Columnar based, meaning that it will work much better
   with `scan_` based method. High compression but in exchange of more RAM and CPU needed
   to decompress it. This compression also adds some overhead. Meant for long term storage.
-  Its creation might be slow due to compression.
-- `.ipc`: Light compression. It is just the same representation as an Arrow table but in
-  the hard disk. Meaning that loading it is just transfering it from the hard disk to
-  memory. It requires less CPU and it is quicker than `parquet` to load. However, its size
-  will be higher. Its creation is quick as it has much less compression than `parquet`.
+  Its creation might be slow due to compression. Its main purpose is the long term
+  storage. This format will guarantee that it can be read in 5-10 years while being quite
+  small in size.
+- `.arrow`: Almost no compression. It is implemented under the Inter Protocol
+  Communication (IPC). This one allows to create an object in disk that is its same
+  representation as an arrow table in memory. This way it can be easily moved to memory.
+  Its purpose is a "runtime in-memory format". Its size will be bigger than `parquet` but
+  it require less CPU and time due to the lack of compression. Its previous version was
+  called `Feater V1`. V2 was renamed to `Arrow IPC File format`.
+
+More info: https://arrow.apache.org/faq/
