@@ -152,8 +152,15 @@ There are multiple tricks that can be done to lower done the memory usage:
 - Using `scan_` based methods instead of `read_`. This will allow to use Lazy dataframes
   that optimize how the data is read
 - Use of `streaming=True` in `collect` will process the data in batches. Useful to not
-  overflow RAM memory. Not all expressions are supported. You can use `explain` to verify
-  this
+  overflow RAM memory. Not all expressions are supported. You can use
+  `explain(streaming=True)` to verify this
 - If you want to save a file from a `LazyFrame`, it is recommended to use the methods
   `sink_` instead of `write_`. The first one will not load the whole LazyFrame into
   memory.
+- If the program is still collapsing when it comes to processing data, something you can
+  do is either of these two:
+  - Read an `ipc` based file (or `parquet`) and keep it in memory. Then, just before the
+    processing, batch the data on your own. This will create multiple output batches that
+    you can later concatenate with `pl.concat`.
+  - If you need even more, scan the file and before processing it, create the batches.
+    This way you are not storing the whole dataframe in memory.
