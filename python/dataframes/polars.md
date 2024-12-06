@@ -168,21 +168,28 @@ There are multiple tricks that can be done to lower done the memory usage:
 
 ## When to use different file types:
 
-We will mainly use `csv`, `parquet` and `arrow`. These last two belong to `Apache` and
-were created for different scenarios.
+Something that you need to know is that `Polars` works with `Arrow` tables (created by
+Apache). This is a "runtime in-memory format" as it implements the Inter Protocol
+Communication (IPC). This is a protocol that allows to easily transfer information among
+processes. This is one of the reasons why `Polars` is so quick: It allows to parallelize
+the code by minimizing the overhead of sending data to other cores or processes.
+
+About its persistentes formats in the hard disk, we will mainly use `csv`, `parquet` and
+`arrow`. These last two belong to `Apache` and were created for different scenarios.
 
 - `.csv`: Row based. Only recommended for streaming. Slowest when it comes to parsing.
 - `.parquet`: Quicker than `csv`. Columnar based, meaning that it will work much better
   with `scan_` based method. High compression but in exchange of more RAM and CPU needed
-  to decompress it. This compression also adds some overhead. Meant for long term storage.
-  Its creation might be slow due to compression. Its main purpose is the long term
-  storage. This format will guarantee that it can be read in 5-10 years while being quite
-  small in size.
-- `.arrow`: Almost no compression. It is implemented under the Inter Protocol
-  Communication (IPC). This one allows to create an object in disk that is its same
-  representation as an arrow table in memory. This way it can be easily moved to memory.
-  Its purpose is a "runtime in-memory format". Its size will be bigger than `parquet` but
-  it require less CPU and time due to the lack of compression. Its previous version was
-  called `Feater V1`. V2 was renamed to `Arrow IPC File format`.
+  to decompress it and deserialize into `Arrow` format. This compression also adds some
+  overhead. Meant for long term storage. Its creation might be slow due to compression.
+  Its main purpose is the long term storage. This format will guarantee that it can be
+  read in 5-10 years while being quite small in size.
+- `.arrow`: Almost no compression as it is just the persistent way of saving the `Arrow`
+  table in the hard disk. Therefore, it is almost the same as the one that it is stored in
+  RAM memory once loaded. It requires minimum (de)serialization so it can be
+  transfered to memory really quick. That's why it is called "runtime in-memory format".
+  It is meant to be the quickest to read among all file types. However, due to its lack of
+  compressionn the file size will be the same as the one after it is loaded in RAM.
+  Its previous version was called `Feater V1`. V2 was renamed to `Arrow IPC File format`.
 
 More info: https://arrow.apache.org/faq/
