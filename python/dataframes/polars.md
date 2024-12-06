@@ -166,6 +166,37 @@ There are multiple tricks that can be done to lower done the memory usage:
     This way you are not storing the whole dataframe in memory.
 
 
+## Hive partitioning
+
+It is a technique that can be used to read or write chunks of different files distributes
+among different folders. As an example, if we have:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ File path                                                   │
+╞═════════════════════════════════════════════════════════════╡
+│ docs/assets/data/hive_mixed/description.txt                 │
+│ docs/assets/data/hive_mixed/year=2023/month=11/data.parquet │
+│ docs/assets/data/hive_mixed/year=2023/month=12/data.parquet │
+│ docs/assets/data/hive_mixed/year=2024/month=01/data.parquet │
+│ docs/assets/data/hive_mixed/year=2024/month=02/data.parquet │
+└─────────────────────────────────────────────────────────────┘
+```
+
+And we do:
+
+```py
+import polars as pl
+
+df = pl.scan_parquet("docs/assets/data/hive/").collect()
+```
+
+The resulting dataframe will be the concatenation of all parquets plus 2 new more columns:
+year and month. Be aware that there are different expressions that can be used. Using `=`
+is recommended as this one wil limrpove interoperaibility with other systems.
+
+More info: https://docs.pola.rs/user-guide/io/hive/
+
 ## When to use different file types:
 
 Something that you need to know is that `Polars` works with `Arrow` tables (created by
