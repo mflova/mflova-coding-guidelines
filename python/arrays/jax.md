@@ -6,6 +6,13 @@ many possibilities. It can work with dictionaries and jax based arrays and its A
 almost identical to numpy. It also has another scipy-based API that replicates its
 functionalities.
 
+## Common issues
+
+Be aware that JAX by default works with 32 bits as opposed to numpy (32 bits). Whenever
+you prepare a benchmark, make sure that there is no implicit conversion between the input
+arrays otherwise you might be timing the computation time plus the conversion dtype, which
+is huge.
+
 ## JIT
 
 Jut in time compilation works similar to `numba`'s one. It is used as a decorator and it
