@@ -13,6 +13,16 @@ you prepare a benchmark, make sure that there is no implicit conversion between 
 arrays otherwise you might be timing the computation time plus the conversion dtype, which
 is huge.
 
+## Profiling
+
+Jax can generate a dashboard with the different traces involves just by wrapping your code
+into the following context manager:
+
+```py
+with jax.profiler.trace("/tmp/jax-trace", create_perfetto_link=True):
+    # Your code
+```
+
 ## JIT
 
 Jut in time compilation works similar to `numba`'s one. It is used as a decorator and it
