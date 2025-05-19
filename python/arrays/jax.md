@@ -27,7 +27,16 @@ with jax.profiler.trace("/tmp/jax-trace", create_perfetto_link=True):
 
 Jut in time compilation works similar to `numba`'s one. It is used as a decorator and it
 will automatically speed up the code by compiling the function and using it whenever the
-function is called.
+function is called. The way it works is by assigning two different types of data to the
+input arguments: dynamic traces and static. The dynamic ones are typically array or
+PyTrees (casted as Python dictionaries, tuples and list). JAX JIT will check how thees
+traces evolve after execution the function (i.e shape). This means that, if we give an
+input array with different shape, the function will need to be recompiled. Compilation
+will take less time if we tend to use primitives and methods that are closer to XLA
+(`jax.lax`) instead of Python-native for loops. In general, if it is not possible to
+analyze how the traces change, the function cannot normally be JITTED. Therefore, we
+should mark as static arguments all those input arguments that modify the traces. These
+must be known at compilation time.
 
 ## Vectorization
 
@@ -77,4 +86,14 @@ jax.debug.visualize_array_sharding(arr)
 
 However, the if we choose a mesh of 20x1 and the array is not divisible by this mesh, it
 will throw an error. One recommended and common solution is to perform padding and fill
-the array until we reach the next size that is divisible by our mesh.
+the array until we reach the next size that is divisible by our mesh. However, it is
+important to indicate that adding the padding can be quite expensive if not done through
+JIT.
+
+## Optimization
+
+For math-based optimization, `jaxopt` was typically the option to go. Now it seems to be divided between: 
+    - `optix` (more first order methods like gradient-descent): Typically for very high
+      dimensional problems like deep learning.
+    - `optimistix` (more similar to `jaxopt`): With classy methods like Levenberg-Marquadt
+      or trust-region based.

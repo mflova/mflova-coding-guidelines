@@ -45,9 +45,9 @@ I like splitting the types following this criteria:
           Hessian. The second one is Large-Memory wich optimizes better for the RAM usage
           (ideal for high dimensionality problems). These might require more iterations
           but it is more robust than GN (the next method).
-        - Gauss-Newton: This one approximates the Hessian by using the Jacobian (Jt x J).
-          Quicker than the previous one but it is considered less robust, especially if
-          residuals are not small or if the problem is not very lineal.
+        - Gauss-Newton (`LS`): This one approximates the Hessian by using the Jacobian
+          (Jt x J). Quicker than the previous one but it is considered less robust,
+          especially if residuals are not small or if the problem is not very lineal.
 
     - Trust-region: While the previous methods blindly rely on the Hessian (either exact
       calculation or approximation), these ones defines a trust-region. These define a
@@ -56,18 +56,24 @@ I like splitting the types following this criteria:
       The further away you move, the least accurate they would be. The idea of the trust
       region is to take into account this problem. They are the slowest ones but, at the
       same time, the most robust ones. `least_squares` from `scipy` uses this one by
-      default.
+      default. Therefore, some of them are `LS` oriented.
 
     - Misc: These ones are typically a combination of the previous ones that do not fit
       into the previous definitions:
 
-      - Levenberg-Marquadt: This one uses a combination between gradient descent and
-        Gaussian-Newton ones for the learning step. This algorithm calculates a metric
+      - Levenberg-Marquadt (`LS`): This one uses a combination between gradient descent
+        and Gaussian-Newton ones for the learning step. This algorithm calculates a metric
         that indicate the quality of the Hessian approximation made by the Gaussian-Newton
         method. If the confidence is low, this parameter would give much more strength to
         the gradient descent technique (and hence using a constant learning rate). This
         way the algorithm takes the best from each method: goes quicker when the
         approximation is good and decelarates when not.
+
+(*): All those methods marked as `LS` are specifically designed for `Least-Squares`
+methods. These ones would take a whole vector of residuals to be minimized. They are able
+to better understand the underlying problem when the meaning of the residuals have some
+specific weights individually. This information would be a bit lost if we do the sum or
+average of all of them.
 
 ## Well behaved problems
 
@@ -153,6 +159,13 @@ Now, here are the three main methods:
     - `backward`: They compute the jacobian from the output to the input. Because of this,
       this method is super well performant in cases where m >> n (more outputs than
       inputs)
+
+## Frameworks
+
+For Python, the recommended ones are:
+
+- `scipy`: Quite generic option but slow for bigger problems.
+- `optix` (uses `jax`): Much quicker due to its auto-differentiation techniques.
 
 More source:
   - https://wandb.ai/wandb_fc/tips/reports/Enhancing-Performance-with-SciPy-Optimize-and-W-B-A-Deep-Dive--Vmlldzo0NjE4MDEy
