@@ -20,7 +20,7 @@ I like splitting the types following this criteria:
       current step. If you visualize this algorithm, it would look as a ball that has
       certain inertia.
 
-- Second order merthods: These are the ones that use second order derivatives (Hessian) on
+- Second order methods: These are the ones that use second order derivatives (Hessian) on
   top of the first one in order to be more efficient in terms on convergence and
   stability. The second derivative gives information about the curavture, what allows to
   choose a better direction and learning rate (in combination with the first derivative).
@@ -88,7 +88,8 @@ is usually looked at is that the Hessian must be positive defined. Methods that 
   stable.
 
 On the other side, methods that do not require it as those that, in the above section,
-were considered more stable: Quasi-Newton ones and trust-region methods. These are the main problems they address:
+were considered more stable: Quasi-Newton ones and trust-region methods. These are the
+main problems they address:
 
   - Non-convex: 
       - Functions that are non-convex can have multiple local minima and inflection
@@ -160,12 +161,22 @@ Now, here are the three main methods:
       this method is super well performant in cases where m >> n (more outputs than
       inputs)
 
-## Frameworks
+## Frameworks and ecosystem
 
 For Python, the recommended ones are:
 
 - `scipy`: Quite generic option but slow for bigger problems.
-- `optix` (uses `jax`): Much quicker due to its auto-differentiation techniques.
+
+Jax based:
+
+- `jaxopt` [DEPRECATED]: Much quicker due to its auto-differentiation techniques.
+- `optax`: Mainly first order methods and therefore targeted for very high dimension
+  problems such as Deep Learning. Some of its algorithms come from `jaxopt`.
+- `optimistix`: Not so oriented to Deep Learning as `optax` so it has more variety,
+  including second order methods like `LevenbergMarquardt`. It looks like the most similar
+  to `jaxopt`. Minimization, root finding, least squares...
+
+See up to date ecosystem in: https://docs.jax.dev/en/latest/
 
 More source:
   - https://wandb.ai/wandb_fc/tips/reports/Enhancing-Performance-with-SciPy-Optimize-and-W-B-A-Deep-Dive--Vmlldzo0NjE4MDEy
